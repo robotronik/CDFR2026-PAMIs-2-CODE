@@ -34,7 +34,7 @@ clean_project() {
 # Function to deploy (flash) the firmware
 deploy_project() {
     echo "Deploying firmware to $PORT..."
-    idf.py -p "$PORT" flash
+    idf.py -p "$PORT" flash monitor
 }
 
 # Function to reset (erase) the ESP firmware
@@ -50,7 +50,23 @@ print_usage() {
     echo "  clean   - Remove the build directory contents"
     echo "  deploy  - Flash the firmware to $PORT"
     echo "  reset   - Erase the entire flash memory on $PORT"
+    eco  "  setup_lsp - Get compile_commands.json to configure your LSP"
     exit 1
+}
+
+
+# Function to setup LSP (symlink compile_commands.json)
+setup_lsp() {
+    idf.py reconfigure
+
+    if [ -f "build/compile_commands.json" ]; then
+        echo "Symlinking build/compile_commands.json to project root..."
+        ln -sf build/compile_commands.json .
+        echo "LSP setup complete."
+    else
+        echo "Error: Failed to generate compile_commands.json."
+        exit 1
+    fi
 }
 
 setup_idf
@@ -67,6 +83,9 @@ case "$1" in
         ;;
     reset)
         reset_firmware
+        ;;
+    setup_lsp)
+        setup_lsp
         ;;
     *) 
         print_usage
