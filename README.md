@@ -51,11 +51,4 @@ This project uses the standard **ESP-IDF** toolchain. Ensure you have the enviro
 2.  **Install ESP-IDF:** Ensure `idf.py` is installed on your machine.
 3.  **Configure:** (Optional) Run `idf.py menuconfig` to adjust project-specific settings.
 
----
 
-## 🛠 Setup & Installation
-
-1.  **Environment:** Open the project in **VS Code** with the **PlatformIO** extension.
-2.  **Configuration:** Adjust physical constants (wheel diameter, PID gains) in the configuration headers.
-3.  **Upload:** Connect the ESP32 and use the `Upload` task to flash the firmware.
-4.  **Monitor:** Use the Serial Monitor at `115200` baud for real-time telemetry and debugging.
