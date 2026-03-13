@@ -55,7 +55,6 @@ print_usage() {
 
 setup_idf
 
-# Case switch handling the first command line argument
 case "$1" in
     build)
         build_project
@@ -69,8 +68,7 @@ case "$1" in
     reset)
         reset_firmware
         ;;
-    *)
-        # Triggered if no argument or an invalid argument is passed
+    *) 
         print_usage
         ;;
 esac
