@@ -45,10 +45,10 @@ This project uses the standard **ESP-IDF** toolchain. Ensure you have the enviro
 
 1.  **Clone the repository:**
     ```bash
-    git clone <repo-url>
-    cd think-tank-firmware
+    git clone git@github.com:robotronik/CDFR2026-PAMIs-2-CODE.git
+    cd CDFR2026-PAMIs-2-CODE
     ```
-2.  **Set up ESP-IDF:** Ensure `idf.py` is in your PATH (e.g., by running `. $IDF_PATH/export.sh`).
+2.  **Install ESP-IDF:** Ensure `idf.py` is installed on your machine.
 3.  **Configure:** (Optional) Run `idf.py menuconfig` to adjust project-specific settings.
 
 ---
