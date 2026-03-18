@@ -1,5 +1,5 @@
 #pragma once
-#include "locomotion/motor.h"
+#include "driver/mcpwm.h"
 
 class MotorControl { 
     // TODO
