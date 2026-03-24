@@ -1,6 +1,16 @@
 #pragma once
-#include "driver/mcpwm.h"
+#include "locomotion/motor.h"
+#include "locomotion/encoder.h"
 
 class MotorControl { 
-    // TODO
+    private:
+        Encoder encoder_a;
+        Encoder encoder_b;
+        Motor motor_a;
+        Motor motor_b;
+    public:
+        MotorControl();
+        void move(float a, float b);
+        void start();
+        void stop();
 };

@@ -1,6 +1,7 @@
 #include "locomotion/motor.h"
+#include "hal/mcpwm_types.h"
 
-Motor::Motor(int pin_in1, int pin_in2) {
+Motor::Motor(gpio_num_t pin_a, gpio_num_t pin_b) {
     /* Timer setup */
     mcpwm_timer_config_t timer_config = {};
     timer_config.group_id = 0; 
@@ -26,11 +27,11 @@ Motor::Motor(int pin_in1, int pin_in2) {
 
     /* Generator setup */
     mcpwm_generator_config_t gen1_config = {};
-    gen1_config.gen_gpio_num = pin_in1;
+    gen1_config.gen_gpio_num = pin_a;
     mcpwm_new_generator(oper, &gen1_config, &gen1);
     
     mcpwm_generator_config_t gen2_config = {};
-    gen2_config.gen_gpio_num = pin_in2;
+    gen2_config.gen_gpio_num = pin_b;
     mcpwm_new_generator(oper, &gen2_config, &gen2);
 
     /* Enable timer */
@@ -43,11 +44,17 @@ Motor::Motor(int pin_in1, int pin_in2) {
         MCPWM_GEN_COMPARE_EVENT_ACTION(MCPWM_TIMER_DIRECTION_UP, cmpr1, MCPWM_GEN_ACTION_LOW));
     mcpwm_generator_set_action_on_compare_event(gen2, 
         MCPWM_GEN_COMPARE_EVENT_ACTION(MCPWM_TIMER_DIRECTION_UP, cmpr2, MCPWM_GEN_ACTION_LOW));
- 
+}
+
+void Motor::start() {
     mcpwm_timer_enable(timer);
     mcpwm_timer_start_stop(timer, MCPWM_TIMER_START_NO_STOP);
 }
 
+void Motor::stop() {
+    mcpwm_timer_start_stop(timer, MCPWM_TIMER_STOP_EMPTY);
+    mcpwm_timer_disable(timer);
+}
 
     
 

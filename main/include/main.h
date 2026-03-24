@@ -1,4 +1,5 @@
 #pragma once 
+#include "locomotion/motor_control.h"
 
 enum MainFSM_State {
     INIT,

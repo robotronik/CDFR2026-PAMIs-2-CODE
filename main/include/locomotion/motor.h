@@ -12,7 +12,9 @@ class Motor {
         mcpwm_gen_handle_t gen2;
 
     public: 
-        Motor(gpio_num_t pin_in1, gpio_num_t pin_in2);
+        Motor(gpio_num_t pin_a, gpio_num_t pin_b);
+        start();
+        stop();
 };
 
 

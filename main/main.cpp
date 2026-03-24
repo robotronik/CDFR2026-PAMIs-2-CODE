@@ -7,11 +7,14 @@
 static const char* LOGGER_TAG = "MainFSM";
 static MainFSM_State current_state = MainFSM_State::INIT;
 
+MotorControl motor_control;
+
 void main_fsm() {
     while(true) {
         switch(current_state) {
             case MainFSM_State::INIT:
-                ESP_LOGI(LOGGER_TAG, "ESP32 Hello"); 
+                ESP_LOGD(LOGGER_TAG, "ESP32 in init state");
+                motor_control = MotorControl();
                 break;
             case MainFSM_State::IDLE:
  
@@ -24,7 +27,7 @@ void main_fsm() {
                 break;
         }
     }
-    vTaskDelay(pdMS_TO_TICKS(10));
+    vTaskDelay(pdMS_TO_TICKS(10)); // TODO: Don't forget to remove this when states are complete
 } 
 
 extern "C" void app_main(void) {
