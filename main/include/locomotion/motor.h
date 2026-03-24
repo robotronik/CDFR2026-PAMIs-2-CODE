@@ -1,5 +1,6 @@
 #pragma once
 #include "driver/mcpwm_prelude.h"
+#include "pins.h"
 
 class Motor {
     private: 
@@ -11,7 +12,7 @@ class Motor {
         mcpwm_gen_handle_t gen2;
 
     public: 
-        Motor(int pin_in1, int pin_in2);
+        Motor(gpio_num_t pin_in1, gpio_num_t pin_in2);
 };
 
 

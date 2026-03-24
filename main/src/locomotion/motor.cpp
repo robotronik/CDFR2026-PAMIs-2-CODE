@@ -1,4 +1,3 @@
-#include "pins.h"
 #include "locomotion/motor.h"
 
 Motor::Motor(int pin_in1, int pin_in2) {

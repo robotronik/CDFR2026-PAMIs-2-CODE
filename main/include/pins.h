@@ -1,4 +1,5 @@
 #pragma once
+#include "driver/gpio.h"
 
 // --- Hall Effect sensors ---
 #define PIN_HALL_A1 32
