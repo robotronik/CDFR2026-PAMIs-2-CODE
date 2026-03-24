@@ -10,7 +10,7 @@ class MotorControl {
         Motor motor_b;
     public:
         MotorControl();
-        void move(float a, float b);
+        void move(float x, float y);
         void start();
         void stop();
 };
