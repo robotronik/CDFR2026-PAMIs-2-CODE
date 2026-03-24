@@ -2,6 +2,8 @@
 #include "pins.h"
 #include "locomotion/encoder.h"
 
+// TODO: count method and glitch filter?
+
 Encoder::Encoder(gpio_num_t pin_a, gpio_num_t pin_b) {
     /* Unit setup */
     pcnt_unit_config_t unit_config = {

@@ -13,8 +13,8 @@ class Motor {
 
     public: 
         Motor(gpio_num_t pin_a, gpio_num_t pin_b);
-        start();
-        stop();
+        void start();
+        void stop();
 };
 
 
