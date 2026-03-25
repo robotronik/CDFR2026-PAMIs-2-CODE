@@ -10,7 +10,7 @@ static MainFSM_State current_state = MainFSM_State::INIT;
 
 MotorControl motor_control;
 PullSwitch pull_switch(PIN_SW_TIRETTE);
-StatusLed status_led;
+StatusLed status_led(PIN_STATUS_LED);
 
 void main_fsm() {
     while(true) {
@@ -27,6 +27,7 @@ void main_fsm() {
             case MainFSM_State::ACTIVE:
                 ESP_LOGD(LOGGER_TAG, "ESP32 in active state");
                 // Nothing to do yet
+                vTaskDelay(pdMS_TO_TICKS(10)); // TODO: Don't forget to remove this when states are complete
                 current_state = MainFSM_State::IDLE;
                 break;
             case MainFSM_State::ERROR:
@@ -35,8 +36,7 @@ void main_fsm() {
                 esp_restart();
                 break;
         }
-    }
-    vTaskDelay(pdMS_TO_TICKS(10)); // TODO: Don't forget to remove this when states are complete
+    } 
 } 
 
 extern "C" void app_main(void) {

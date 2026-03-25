@@ -7,6 +7,7 @@ class Led {
         gpio_num_t pin;
     public:
         Led(gpio_num_t pin); 
+        gpio_num_t get_pin();
 };
 
 class StatusLed: public Led {

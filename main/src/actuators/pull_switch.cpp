@@ -8,7 +8,7 @@ PullSwitch::PullSwitch(gpio_num_t pin) : pin(pin) {
         .pull_down_en = GPIO_PULLDOWN_ENABLE, 
         .intr_type = GPIO_INTR_DISABLE
     };
-    gpio_config(&default_pull_config);
+    ESP_ERROR_CHECK(gpio_config(&default_pull_config));
 }
 
 int PullSwitch::read() {
