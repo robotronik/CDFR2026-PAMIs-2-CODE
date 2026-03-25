@@ -10,7 +10,7 @@ static MainFSM_State current_state = MainFSM_State::INIT;
 
 MotorControl motor_control;
 PullSwitch pull_switch(PIN_SW_TIRETTE);
-StatusLed status_led;
+StatusLed status_led(PIN_STATUS_LED);
 
 void main_fsm() {
     while(true) {

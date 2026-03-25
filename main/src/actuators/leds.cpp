@@ -11,7 +11,11 @@ Led::Led(gpio_num_t pin) : pin(pin) {
     gpio_config(&default_pull_config);
 }
 
+gpio_num_t Led::get_pin() {
+    return pin;
+}
+
 void StatusLed::toggle() {
-    gpio_set_level(PIN_STATUS_LED, !current_state);
+    gpio_set_level(get_pin(), !current_state);
     current_state = !current_state;
 }
