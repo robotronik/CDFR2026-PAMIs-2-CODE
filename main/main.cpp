@@ -10,6 +10,7 @@ static MainFSM_State current_state = MainFSM_State::INIT;
 
 MotorControl motor_control;
 PullSwitch pull_switch(PIN_SW_TIRETTE);
+StatusLed status_led;
 
 void main_fsm() {
     while(true) {
@@ -17,6 +18,7 @@ void main_fsm() {
             case MainFSM_State::INIT:
                 ESP_LOGD(LOGGER_TAG, "ESP32 in init state"); 
                 current_state = MainFSM_State::IDLE;
+                status_led.toggle();
                 break;
             case MainFSM_State::IDLE:
                 ESP_LOGD(LOGGER_TAG, "ESP32 in idle state");
