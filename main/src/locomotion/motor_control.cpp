@@ -12,7 +12,7 @@ MotorControl::MotorControl()
    ESP_LOGD(LOGGER_TAG, "init");
 }
 
-void MotorControl::move(float x, float y) {
+void MotorControl::move(coords dest) {
     // TODO: Control Logic
 
     ESP_LOGD(LOGGER_TAG, "Received move order, coords: x: %f, y: %f", x, y);
