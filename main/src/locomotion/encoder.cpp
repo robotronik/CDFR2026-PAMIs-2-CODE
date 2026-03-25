@@ -7,9 +7,10 @@
 Encoder::Encoder(gpio_num_t pin_a, gpio_num_t pin_b) {
     /* Unit setup */
     pcnt_unit_config_t unit_config = {
-        .high_limit = 1000, // todo check needed cnt resolution 
-        .low_limit = -1000,
-        .intr_priority = 0
+        .low_limit = 1000, // todo check needed cnt resolution 
+        .high_limit = -1000,
+        .intr_priority = 0,
+        .flags = {}
     };
     pcnt_unit = NULL;
     ESP_ERROR_CHECK(pcnt_new_unit(&unit_config, &pcnt_unit));
@@ -17,11 +18,13 @@ Encoder::Encoder(gpio_num_t pin_a, gpio_num_t pin_b) {
     /* Channel setup */
     pcnt_chan_config_t chan_config_a = {
         .edge_gpio_num = pin_a,
-        .level_gpio_num = pin_b
+        .level_gpio_num = pin_b,
+        .flags = {}, 
     };
     pcnt_chan_config_t chan_config_b = {
         .edge_gpio_num = pin_b,
-        .level_gpio_num = pin_a
+        .level_gpio_num = pin_a,
+        .flags = {},
     };
     channel_a = NULL;
     channel_b = NULL;

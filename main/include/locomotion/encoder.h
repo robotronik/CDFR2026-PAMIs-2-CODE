@@ -1,5 +1,5 @@
 #pragma once
-#include "driver/pcnt.h"
+#include "driver/pulse_cnt.h"
 #include "pins.h"
 
 class Encoder {
