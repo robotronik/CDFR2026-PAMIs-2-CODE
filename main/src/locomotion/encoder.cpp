@@ -2,13 +2,19 @@
 #include "pins.h"
 #include "locomotion/encoder.h"
 
+#define ENCODER_RES 7 // tick per round
+#define RATIO 20 // reductor
+#define TICK_PER_REVOLUTION 140
+#define RADIUS 3 // cm
+#define DISTANCE_PER_REVOLUTION 3.1415 * 2 * RADIUS
+
 // TODO: count method and glitch filter?
 
 Encoder::Encoder(gpio_num_t pin_a, gpio_num_t pin_b) {
     /* Unit setup */
     pcnt_unit_config_t unit_config = {
-        .low_limit = 1000, // todo check needed cnt resolution 
-        .high_limit = -1000,
+        .low_limit = -100000, // todo check needed cnt resolution 
+        .high_limit = 100000,
         .intr_priority = 0,
         .flags = {}
     };
@@ -36,6 +42,18 @@ Encoder::Encoder(gpio_num_t pin_a, gpio_num_t pin_b) {
  
     ESP_ERROR_CHECK(pcnt_channel_set_edge_action(channel_b, PCNT_CHANNEL_EDGE_ACTION_INCREASE, PCNT_CHANNEL_EDGE_ACTION_DECREASE));
     ESP_ERROR_CHECK(pcnt_channel_set_level_action(channel_b, PCNT_CHANNEL_LEVEL_ACTION_KEEP, PCNT_CHANNEL_LEVEL_ACTION_INVERSE)); 
+}
+
+float Encoder::get_delta() {
+    int count = 0;
+    ESP_ERROR_CHECK(pcnt_unit_get_count(pcnt_unit, &count));
+
+    float delta_pos = ((float)count / TICK_PER_REVOLUTION) * DISTANCE_PER_REVOLUTION;
+    return delta_pos;
+}
+
+void Encoder::clear_count() {
+    ESP_ERROR_CHECK(pcnt_unit_clear_count(pcnt_unit));
 }
 
 void Encoder::start() {

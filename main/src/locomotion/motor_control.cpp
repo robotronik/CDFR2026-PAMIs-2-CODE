@@ -12,10 +12,16 @@ MotorControl::MotorControl()
    ESP_LOGD(LOGGER_TAG, "init");
 }
 
-void MotorControl::move(coords dest) {
-    // TODO: Control Logic
+void MotorControl::move(coords_t new_target) {
+    ESP_LOGD(LOGGER_TAG, "Received move order, coords: x: %f, y: %f, angle: %f", new_target.x, new_target.y, new_target.angle);
 
-    ESP_LOGD(LOGGER_TAG, "Received move order, coords: x: %f, y: %f", x, y);
+    // TODO: safety checks (bounds)
+    target_pos = new_target;
+}
+
+void MotorControl::update() {
+    float delta_a = encoder_a.get_delta();
+    float delta_b = encoder_b.get_delta();
 }
 
 void MotorControl::start() {
