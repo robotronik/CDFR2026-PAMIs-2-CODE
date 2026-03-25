@@ -27,6 +27,7 @@ void main_fsm() {
             case MainFSM_State::ACTIVE:
                 ESP_LOGD(LOGGER_TAG, "ESP32 in active state");
                 // Nothing to do yet
+                vTaskDelay(pdMS_TO_TICKS(10)); // TODO: Don't forget to remove this when states are complete
                 current_state = MainFSM_State::IDLE;
                 break;
             case MainFSM_State::ERROR:
@@ -35,8 +36,7 @@ void main_fsm() {
                 esp_restart();
                 break;
         }
-    }
-    vTaskDelay(pdMS_TO_TICKS(10)); // TODO: Don't forget to remove this when states are complete
+    } 
 } 
 
 extern "C" void app_main(void) {
