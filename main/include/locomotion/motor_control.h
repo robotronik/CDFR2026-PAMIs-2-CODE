@@ -15,6 +15,12 @@ struct coords_t {
     }
 };
 
+enum MotorControlState {
+    ROTATION,
+    LINEAR,
+    STOP
+};
+
 class MotorControl { 
     private:
         Encoder encoder_a;
@@ -24,6 +30,9 @@ class MotorControl {
 
         coords_t target_pos;
         coords_t current_pos;
+
+        MotorControlState current_state;
+
     public:
         MotorControl();
         void move(coords_t new_target);

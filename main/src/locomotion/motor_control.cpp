@@ -1,5 +1,8 @@
 #include "locomotion/motor_control.h"
 #include <esp_log.h>
+#include "math.h"
+
+#define WHEEL_DIST 8; // in cm 
 
 static const char* LOGGER_TAG = "MotorControl";
 
@@ -22,6 +25,34 @@ void MotorControl::move(coords_t new_target) {
 void MotorControl::update() {
     float delta_a = encoder_a.get_delta();
     float delta_b = encoder_b.get_delta();
+    float avg_delta = (delta_a + delta_b) / 2.0f;
+
+    // Update angle
+    float delta_angle = (delta_a - delta_b) / WHEEL_DIST;
+
+    current_pos.angle += delta_angle;
+    
+    // Update position 
+    float delta_x = avg_delta * sin(current_pos.angle);
+    float delta_y = avg_delta * cos(current_pos.angle);
+
+    current_pos.x += delta_x;
+    current_pos.y += delta_y;
+
+    ESP_LOGD(LOGGER_TAG, "New control tick - x: %f, y: %f, angle: %f", current_pos.x, current_pos.y, current_pos.angle);
+
+    switch(current_state) {
+        case MotorControlState::STOP:
+            // do nothing
+            break;
+        case MotorControlState::ROTATION:
+            
+            break;
+        case MotorControlState::LINEAR:
+
+            
+            break;
+    }
 }
 
 void MotorControl::start() {

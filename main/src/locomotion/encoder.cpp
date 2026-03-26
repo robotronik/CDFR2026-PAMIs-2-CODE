@@ -7,6 +7,7 @@
 #define TICK_PER_REVOLUTION 140
 #define RADIUS 3 // cm
 #define DISTANCE_PER_REVOLUTION 3.1415 * 2 * RADIUS
+#define ROTATION_PER_TICK 1.11 // degrees per tick
 
 // TODO: count method and glitch filter?
 
