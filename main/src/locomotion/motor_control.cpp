@@ -2,7 +2,9 @@
 #include <esp_log.h>
 #include "math.h"
 
-#define WHEEL_DIST 8; // in cm 
+#define WHEEL_DIST 8 // cm 
+#define ANGLE_ERROR_MARGIN 1 // degrees
+#define DISTANCE_ERROR_MARGIN 0.1 // cm
 
 static const char* LOGGER_TAG = "MotorControl";
 
@@ -20,6 +22,14 @@ void MotorControl::move(coords_t new_target) {
 
     // TODO: safety checks (bounds)
     target_pos = new_target;
+    
+    delta_initial = sqrt(pow(target_pos.x - current_pos.x, 2) + pow(target_pos.y - current_pos.y, 2));
+    delta_angle_initial = target_pos.angle - current_pos.angle;
+
+    // First angular target: Move to point
+    real_angle_target = atan2((target_pos.y - current_pos.y), (target_pos.x - current_pos.y));
+
+    current_state = MotorControlState::START;
 }
 
 void MotorControl::update() {
@@ -44,18 +54,42 @@ void MotorControl::update() {
     switch(current_state) {
         case MotorControlState::START:
             start();
+            current_state = MotorControlState::ROTATION;
             break;
         case MotorControlState::STOP:
             stop(); 
             break;
         case MotorControlState::ROTATION:
-            float delta_target_angle = target_pos.angle - current_pos.angle;
+            float delta_target_angle = real_angle_target - current_pos.angle;
+            if(delta_target_angle < ANGLE_ERROR_MARGIN && real_angle_target == target_pos.angle) { 
+                current_state = MotorControlState::STOP;
+            } else if (delta_target_angle < ANGLE_ERROR_MARGIN) {
+                current_state = MotorControlState::LINEAR;
+            }
+
+            float angular_speed_percentage = delta_target_angle/delta_angle_initial; 
+            if(delta_target_angle < 0.0f && delta_angle_initial < 0.0f) {
+                angular_speed_percentage = -angular_speed_percentage;
+            }
+
+            motor_a.set_speed(angular_speed_percentage);
+            motor_b.set_speed(-angular_speed_percentage);
             break;
         case MotorControlState::LINEAR:
             float delta_target_x = target_pos.x - current_pos.x;
             float delta_target_y = target_pos.y - current_pos.y;
 
-            
+            float remaining_distance = sqrt(pow(delta_target_x, 2) + pow(delta_target_y, 2));
+            if(remaining_distance < DISTANCE_ERROR_MARGIN) {
+                // Switch to second rotation phase to align to the real target angle
+                real_angle_target = target_pos.angle;
+                current_state = MotorControlState::ROTATION;
+            }
+
+            float speed_percentage = remaining_distance/delta_initial;
+
+            motor_a.set_speed(speed_percentage);
+            motor_b.set_speed(speed_percentage);
             break;
     }
 }
@@ -70,6 +104,8 @@ void MotorControl::start() {
 }
 
 void MotorControl::stop() {
+    motor_a.set_speed(0.0f);
+    motor_b.set_speed(0.0f);
     encoder_a.stop();
     encoder_b.stop();
     motor_a.stop();
