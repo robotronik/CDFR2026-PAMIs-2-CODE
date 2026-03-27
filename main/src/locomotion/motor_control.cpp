@@ -39,16 +39,21 @@ void MotorControl::update() {
     current_pos.x += delta_x;
     current_pos.y += delta_y;
 
-    ESP_LOGD(LOGGER_TAG, "New control tick - x: %f, y: %f, angle: %f", current_pos.x, current_pos.y, current_pos.angle);
+    ESP_LOGD(LOGGER_TAG, "Update position - x: %f, y: %f, angle: %f", current_pos.x, current_pos.y, current_pos.angle);
 
     switch(current_state) {
+        case MotorControlState::START:
+            start();
+            break;
         case MotorControlState::STOP:
-            // do nothing
+            stop(); 
             break;
         case MotorControlState::ROTATION:
-            
+            float delta_target_angle = target_pos.angle - current_pos.angle;
             break;
         case MotorControlState::LINEAR:
+            float delta_target_x = target_pos.x - current_pos.x;
+            float delta_target_y = target_pos.y - current_pos.y;
 
             
             break;

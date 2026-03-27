@@ -18,6 +18,7 @@ struct coords_t {
 enum MotorControlState {
     ROTATION,
     LINEAR,
+    START,
     STOP
 };
 

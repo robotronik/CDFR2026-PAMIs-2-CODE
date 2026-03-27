@@ -1,5 +1,5 @@
 #include "locomotion/motor.h"
-#include "hal/mcpwm_types.h"
+#include "hal/mcpwm_types.h" 
 
 Motor::Motor(gpio_num_t pin_a, gpio_num_t pin_b) {
     /* Timer setup */
@@ -44,6 +44,21 @@ Motor::Motor(gpio_num_t pin_a, gpio_num_t pin_b) {
         MCPWM_GEN_COMPARE_EVENT_ACTION(MCPWM_TIMER_DIRECTION_UP, cmpr1, MCPWM_GEN_ACTION_LOW)));
     ESP_ERROR_CHECK(mcpwm_generator_set_action_on_compare_event(gen2, 
         MCPWM_GEN_COMPARE_EVENT_ACTION(MCPWM_TIMER_DIRECTION_UP, cmpr2, MCPWM_GEN_ACTION_LOW)));
+}
+
+void Motor::set_speed(float percentage) {  
+        uint32_t compare_val = (uint32_t)((std::abs(percentage) * 0.001));
+
+        if (percentage > 0.0f) {  
+            mcpwm_comparator_set_compare_value(this->cmpr1, compare_val);
+            mcpwm_comparator_set_compare_value(this->cmpr2, 0);
+        } else if (percentage < 0.0f) {
+            mcpwm_comparator_set_compare_value(this->cmpr1, 0);
+            mcpwm_comparator_set_compare_value(this->cmpr2, compare_val);
+        } else { 
+            mcpwm_comparator_set_compare_value(this->cmpr1, 0);
+            mcpwm_comparator_set_compare_value(this->cmpr2, 0);
+        }
 }
 
 void Motor::start() {

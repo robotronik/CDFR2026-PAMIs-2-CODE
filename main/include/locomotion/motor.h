@@ -13,6 +13,7 @@ class Motor {
 
     public: 
         Motor(gpio_num_t pin_a, gpio_num_t pin_b);
+        void set_speed(float percentage);
         void start();
         void stop();
 };
