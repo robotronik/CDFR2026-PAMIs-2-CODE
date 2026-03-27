@@ -1,10 +1,10 @@
 #include "locomotion/motor_control.h"
 #include <esp_log.h>
 #include "math.h"
+#include "constants.h"
 
-#define WHEEL_DIST 8 // cm 
-#define ANGLE_ERROR_MARGIN 1 // degrees
-#define DISTANCE_ERROR_MARGIN 0.1 // cm
+using namespace robot_pins;
+using namespace robot_constants;
 
 static const char* LOGGER_TAG = "MotorControl";
 
@@ -27,7 +27,7 @@ void MotorControl::move(coords_t new_target) {
     delta_angle_initial = target_pos.angle - current_pos.angle;
 
     // First angular target: Move to point
-    real_angle_target = atan2((target_pos.y - current_pos.y), (target_pos.x - current_pos.y));
+    real_angle_target = atan2((target_pos.y - current_pos.y), (target_pos.x - current_pos.y))*RAD_TO_DEG;
 
     current_state = MotorControlState::START;
 }
@@ -43,8 +43,8 @@ void MotorControl::update() {
     current_pos.angle += delta_angle;
     
     // Update position 
-    float delta_x = avg_delta * sin(current_pos.angle);
-    float delta_y = avg_delta * cos(current_pos.angle);
+    float delta_x = avg_delta * sin(current_pos.angle*DEG_TO_RAD);
+    float delta_y = avg_delta * cos(current_pos.angle*DEG_TO_RAD);
 
     current_pos.x += delta_x;
     current_pos.y += delta_y;
@@ -54,6 +54,7 @@ void MotorControl::update() {
     switch(current_state) {
         case MotorControlState::START:
             start();
+            // TODO: if our robot can reach its target by just going backwards then it should do that then rotate after
             current_state = MotorControlState::ROTATION;
             break;
         case MotorControlState::STOP:
@@ -68,7 +69,7 @@ void MotorControl::update() {
             }
 
             float angular_speed_percentage = delta_target_angle/delta_angle_initial; 
-            if(delta_target_angle < 0.0f && delta_angle_initial < 0.0f) {
+            if(delta_target_angle < 0.0f && delta_angle_initial < 0.0f) { // TODO: check if correct
                 angular_speed_percentage = -angular_speed_percentage;
             }
 
@@ -87,6 +88,10 @@ void MotorControl::update() {
             }
 
             float speed_percentage = remaining_distance/delta_initial;
+            // Speed ramp
+            if(speed_percentage > motor_a.current_speed + SPEED_STEP) { // in this phase we have motor_a speed = motor_b speed 
+                 speed_percentage = motor_a.current_speed + SPEED_STEP;
+            }
 
             motor_a.set_speed(speed_percentage);
             motor_b.set_speed(speed_percentage);

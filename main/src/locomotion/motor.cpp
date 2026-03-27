@@ -1,7 +1,8 @@
 #include "locomotion/motor.h"
 #include "hal/mcpwm_types.h" 
+using namespace robot_pins;
 
-Motor::Motor(gpio_num_t pin_a, gpio_num_t pin_b) {
+Motor::Motor(gpio_num_t pin_a, gpio_num_t pin_b) : current_speed(0) {
     /* Timer setup */
     mcpwm_timer_config_t timer_config = {};
     timer_config.group_id = 0; 
@@ -48,6 +49,7 @@ Motor::Motor(gpio_num_t pin_a, gpio_num_t pin_b) {
 
 void Motor::set_speed(float percentage) {  
         uint32_t compare_val = (uint32_t)((std::abs(percentage) * 0.001));
+        current_speed = percentage;
 
         if (percentage > 0.0f) {  
             mcpwm_comparator_set_compare_value(this->cmpr1, compare_val);

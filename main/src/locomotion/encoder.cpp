@@ -1,13 +1,10 @@
 #include "esp_err.h"
 #include "pins.h"
+#include "constants.h"
 #include "locomotion/encoder.h"
 
-#define ENCODER_RES 7 // tick per round
-#define RATIO 20 // reductor
-#define TICK_PER_REVOLUTION 140
-#define RADIUS 3 // cm
-#define DISTANCE_PER_REVOLUTION 3.1415 * 2 * RADIUS
-#define ROTATION_PER_TICK 1.11 // degrees per tick
+using namespace robot_pins;
+using namespace robot_constants;
 
 // TODO: count method and glitch filter?
 
