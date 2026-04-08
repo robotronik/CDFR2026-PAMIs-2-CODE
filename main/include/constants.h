@@ -19,5 +19,7 @@ namespace robot_constants {
     constexpr float WHEEL_DIST = 80.0f; // mm 
     constexpr float ANGLE_ERROR_MARGIN = 0.1f; // radians
     constexpr float DISTANCE_ERROR_MARGIN = 2.0f; // mm
-    constexpr float SPEED_STEP = 0.1f; // to be calculated
+    constexpr float SPEED_STEP = 0.1f;  // mm/s  TODO: calculate
+    constexpr float SLOWDOWN_DISTANCE_PERCENTAGE = 0.2f;
+    constexpr float MIN_SPEED_PERCENTAGE = 0.2f; 
 }

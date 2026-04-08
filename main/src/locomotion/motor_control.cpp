@@ -22,12 +22,13 @@ void MotorControl::move(coords_t new_target) {
 
     // TODO: safety checks (bounds)
     target_pos = new_target;
-    
-    delta_initial = sqrt(pow(target_pos.x - current_pos.x, 2) + pow(target_pos.y - current_pos.y, 2));
+   
+    // do not use pow for faster exponentiation
+    delta_initial = sqrt((target_pos.x - current_pos.x) * (target_pos.x - current_pos.x) + (target_pos.y - current_pos.y) * (target_pos.y - current_pos.y));
     delta_angle_initial = target_pos.angle - current_pos.angle;
 
     // First angular target: Move to point
-    real_angle_target = atan2((target_pos.y - current_pos.y), (target_pos.x - current_pos.y))*RAD_TO_DEG;
+    real_angle_target = atan2((target_pos.y - current_pos.y), (target_pos.x - current_pos.x))*RAD_TO_DEG;
 
     current_state = MotorControlState::START;
 }
@@ -76,25 +77,31 @@ void MotorControl::update() {
             motor_a.set_speed(angular_speed_percentage);
             motor_b.set_speed(-angular_speed_percentage);
             break;
-        case MotorControlState::LINEAR:
+        case MotorControlState::LINEAR: // TODO constant phase after ramp? 
             float delta_target_x = target_pos.x - current_pos.x;
             float delta_target_y = target_pos.y - current_pos.y;
 
-            float remaining_distance = sqrt(pow(delta_target_x, 2) + pow(delta_target_y, 2));
+            float remaining_distance = sqrt(delta_target_x * delta_target_x + delta_target_y * delta_target_y); 
             if(remaining_distance < DISTANCE_ERROR_MARGIN) {
                 // Switch to second rotation phase to align to the real target angle
                 real_angle_target = target_pos.angle;
                 current_state = MotorControlState::ROTATION;
             }
 
-            float speed_percentage = remaining_distance/delta_initial;
-            // Speed ramp
-            if(speed_percentage > motor_a.current_speed + SPEED_STEP) { // in this phase we have motor_a speed = motor_b speed 
-                 speed_percentage = motor_a.current_speed + SPEED_STEP;
+            // Trapezoidal speed curve 
+            float target_speed_percentage = 0.0f;
+            float distance_factor = remaining_distance / delta_initial; 
+            if(current_speed_percentage < 1.0f && distance_factor > SLOWDOWN_DISTANCE_PERCENTAGE) { // linear accceleration 
+                target_speed_percentage = current_speed_percentage + SPEED_STEP;
+            } else if(distance_factor <= SLOWDOWN_DISTANCE_PERCENTAGE && target_speed_percentage > MIN_SPEED_PERCENTAGE) {
+                target_speed_percentage = current_speed_percentage - SPEED_STEP; // linear deceleration 
+            } else {
+                target_speed_percentage = current_speed_percentage; // top speed reached
             }
 
-            motor_a.set_speed(speed_percentage);
-            motor_b.set_speed(speed_percentage);
+            current_speed_percentage = target_speed_percentage;
+            motor_a.set_speed(target_speed_percentage);
+            motor_b.set_speed(target_speed_percentage);
             break;
     }
 }

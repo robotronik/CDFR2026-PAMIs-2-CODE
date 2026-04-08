@@ -5,6 +5,8 @@
 
 #include "main.h"
 
+using namespace robot_pins;
+
 static const char* LOGGER_TAG = "MainFSM";
 static MainFSM_State current_state = MainFSM_State::INIT;
 

@@ -32,9 +32,10 @@ class MotorControl {
         coords_t target_pos;
         coords_t current_pos;
 
-        float real_angle_target;
-        float delta_initial;
-        float delta_angle_initial;
+        float real_angle_target = 0.0f;
+        float delta_initial = 0.0f;
+        float delta_angle_initial = 0.0f;
+        float current_speed_percentage = 0.0f;
 
         MotorControlState current_state;
 
