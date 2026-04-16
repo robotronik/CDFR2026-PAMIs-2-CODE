@@ -1,5 +1,6 @@
 #include "locomotion/motor_control.h"
 #include <esp_log.h>
+#include "freertos/idf_additions.h"
 #include "math.h"
 #include "constants.h"
 
@@ -124,4 +125,15 @@ void MotorControl::stop() {
     motor_b.stop();
 
     ESP_LOGD(LOGGER_TAG, "stop");
+}
+
+/* RTOS Control Task */
+
+void MotorControlTask::run() {
+    const TickType_t freq = pdMS_TO_TICKS(10);
+    TickType_t last_wake_time = xTaskGetTickCount();
+    while(!stop_task) {
+        control.update();
+        vTaskDelayUntil(&last_wake_time, freq);
+    }
 }

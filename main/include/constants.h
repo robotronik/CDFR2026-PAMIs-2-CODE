@@ -6,7 +6,7 @@ namespace robot_constants {
     constexpr float DEG_TO_RAD = PI / 180.0f; 
     constexpr float RAD_TO_DEG = 180.0f / PI; 
 
-    // --- Encoder & Odométrie ---
+    // --- Encoder & Odometry ---
     constexpr int ENCODER_RES = 7; // ticks par tour moteur
     constexpr int REDUCTOR_RATIO = 20;
     constexpr int TICK_PER_REVOLUTION = ENCODER_RES * REDUCTOR_RATIO; 
