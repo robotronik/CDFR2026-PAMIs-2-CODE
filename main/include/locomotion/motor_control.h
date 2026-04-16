@@ -2,18 +2,24 @@
 #include "locomotion/motor.h"
 #include "locomotion/encoder.h"
 
-
-struct coords {
+struct coords_t {
     float x;
     float y;
     float angle;
 
     void updateAngle(float newAngle) {
-        angle = std::fmod(newAngle, 360.0f);
+        angle = newAngle;
         if (angle < 0) {
             angle += 360.0f;
         }
     }
+};
+
+enum MotorControlState {
+    ROTATION,
+    LINEAR,
+    START,
+    STOP
 };
 
 class MotorControl { 
@@ -23,12 +29,20 @@ class MotorControl {
         Motor motor_a;
         Motor motor_b;
 
-        coords target;
+        coords_t target_pos;
+        coords_t current_pos;
 
-        
+        float real_angle_target = 0.0f;
+        float delta_initial = 0.0f;
+        float delta_angle_initial = 0.0f;
+        float current_speed_percentage = 0.0f;
+
+        MotorControlState current_state;
+
     public:
         MotorControl();
-        void move(coords dest);
+        void move(coords_t new_target);
+        void update();
         void start();
         void stop();
 };
