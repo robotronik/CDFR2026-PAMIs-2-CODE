@@ -2,19 +2,7 @@
 #include "locomotion/motor.h"
 #include "locomotion/encoder.h"
 #include "rtos_wrapper.h"
-
-struct coords_t {
-    float x;
-    float y;
-    float angle;
-
-    void updateAngle(float newAngle) {
-        angle = newAngle;
-        if (angle < 0) {
-            angle += 360.0f;
-        }
-    }
-};
+#include "structs.h"
 
 enum MotorControlState {
     ROTATION,
