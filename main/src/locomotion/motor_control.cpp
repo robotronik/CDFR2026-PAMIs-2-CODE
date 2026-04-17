@@ -1,5 +1,6 @@
 #include "locomotion/motor_control.h"
 #include <esp_log.h>
+#include "freertos/idf_additions.h"
 #include "math.h"
 #include "constants.h"
 
@@ -53,15 +54,21 @@ void MotorControl::update() {
     ESP_LOGD(LOGGER_TAG, "Update position - x: %f, y: %f, angle: %f", current_pos.x, current_pos.y, current_pos.angle);
 
     switch(current_state) {
-        case MotorControlState::START:
+        case MotorControlState::START: {
             start();
             // TODO: if our robot can reach its target by just going backwards then it should do that then rotate after
-            current_state = MotorControlState::ROTATION;
+            if (delta_angle_initial < ANGLE_ERROR_MARGIN) {
+                current_state = MotorControlState::LINEAR;
+            } else {
+                current_state = MotorControlState::ROTATION;
+            }
             break;
-        case MotorControlState::STOP:
+        }
+        case MotorControlState::STOP: {
             stop(); 
             break;
-        case MotorControlState::ROTATION:
+        }
+        case MotorControlState::ROTATION: {
             float delta_target_angle = real_angle_target - current_pos.angle;
             if(delta_target_angle < ANGLE_ERROR_MARGIN && real_angle_target == target_pos.angle) { 
                 current_state = MotorControlState::STOP;
@@ -77,7 +84,8 @@ void MotorControl::update() {
             motor_a.set_speed(angular_speed_percentage);
             motor_b.set_speed(-angular_speed_percentage);
             break;
-        case MotorControlState::LINEAR: // TODO constant phase after ramp? 
+        }
+        case MotorControlState::LINEAR: { // TODO constant phase after ramp? 
             float delta_target_x = target_pos.x - current_pos.x;
             float delta_target_y = target_pos.y - current_pos.y;
 
@@ -103,6 +111,7 @@ void MotorControl::update() {
             motor_a.set_speed(target_speed_percentage);
             motor_b.set_speed(target_speed_percentage);
             break;
+        }
     }
 }
 
@@ -124,4 +133,15 @@ void MotorControl::stop() {
     motor_b.stop();
 
     ESP_LOGD(LOGGER_TAG, "stop");
+}
+
+/* RTOS Control Task */
+
+void MotorControlTask::run() {
+    const TickType_t freq = pdMS_TO_TICKS(10);
+    TickType_t last_wake_time = xTaskGetTickCount();
+    while(!stop_task) {
+        control.update();
+        vTaskDelayUntil(&last_wake_time, freq);
+    }
 }

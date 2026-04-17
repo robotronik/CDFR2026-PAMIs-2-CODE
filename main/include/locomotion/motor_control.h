@@ -1,6 +1,7 @@
 #pragma once
 #include "locomotion/motor.h"
 #include "locomotion/encoder.h"
+#include "rtos_wrapper.h"
 
 struct coords_t {
     float x;
@@ -45,4 +46,13 @@ class MotorControl {
         void update();
         void start();
         void stop();
+};
+
+class MotorControlTask : public RTOSTaskWrapper {
+    private:
+        MotorControl& control;
+    protected:
+        void run() override;
+    public:
+        MotorControlTask(MotorControl& control) : RTOSTaskWrapper("MotorControl", 4096, 10, 0), control(control) {}
 };
