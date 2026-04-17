@@ -9,8 +9,6 @@ class Encoder {
         pcnt_channel_handle_t channel_b;
     public:
         Encoder(gpio_num_t pin_a, gpio_num_t pin_b);
-        float get_delta();
-        void clear_count();
         void start();
         void stop();
 };

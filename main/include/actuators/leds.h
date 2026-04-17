@@ -1,5 +1,6 @@
 #pragma once
 #include "pins.h"
+#include "led_strip.h"
 
 class Led {
     private:
