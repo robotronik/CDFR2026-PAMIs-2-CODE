@@ -5,10 +5,14 @@
 
 #include "main.h"
 
+using namespace robot_pins;
+
 static const char* LOGGER_TAG = "MainFSM";
 static MainFSM_State current_state = MainFSM_State::INIT;
 
 MotorControl motor_control;
+MotorControlTask motor_task(motor_control);
+
 PullSwitch pull_switch(PIN_SW_TIRETTE);
 StatusLed status_led(PIN_STATUS_LED);
 
@@ -16,9 +20,13 @@ void main_fsm() {
     while(true) {
         switch(current_state) {
             case MainFSM_State::INIT:
-                ESP_LOGD(LOGGER_TAG, "ESP32 in init state"); 
-                current_state = MainFSM_State::IDLE;
+                ESP_LOGD(LOGGER_TAG, "ESP32 in init state");
+                
+                /* Init components if needed */
                 status_led.toggle();
+                
+                /* Init RTOS tasks: Core 0 navigation */
+                motor_task.start();
                 break;
             case MainFSM_State::IDLE:
                 ESP_LOGD(LOGGER_TAG, "ESP32 in idle state");

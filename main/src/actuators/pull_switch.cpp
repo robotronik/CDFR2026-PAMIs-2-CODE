@@ -1,4 +1,7 @@
 #include "actuators/pull_switch.h"
+#include "pins.h"
+
+using namespace robot_pins;
 
 PullSwitch::PullSwitch(gpio_num_t pin) : pin(pin) {
     gpio_config_t default_pull_config = {
