@@ -1,6 +1,6 @@
 #pragma once
-#include "rtos_wrapper.h"
 #include "structs.h"
+#include <string>
 #include <vector>
 
 class Map {

@@ -1,7 +1,7 @@
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
 #include "pins.h"
 #include <esp_log.h>
+#include <esp_system.h>
+#include <esp_rom_sys.h>
 
 #include "main.h"
 
@@ -30,7 +30,7 @@ void main_fsm() {
             case MainFSM_State::ACTIVE: {
                 ESP_LOGD(LOGGER_TAG, "ESP32 in active state");
                 // Nothing to do yet
-                vTaskDelay(pdMS_TO_TICKS(10)); // TODO: Don't forget to remove this when states are complete
+                esp_rom_delay_us(10000);
                 current_state = MainFSM_State::IDLE;
                 break;
             }

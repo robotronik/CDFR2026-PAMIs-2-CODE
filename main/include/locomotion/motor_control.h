@@ -1,9 +1,7 @@
 #pragma once
 #include "locomotion/motor.h"
 #include "locomotion/encoder.h"
-#include "rtos_wrapper.h"
 #include "structs.h"
-#include <mutex>
 
 enum MotorControlState {
     ROTATION,
