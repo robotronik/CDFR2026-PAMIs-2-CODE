@@ -1,4 +1,6 @@
 #pragma once
+#include <string>
+#include <atomic>
 
 struct coords_t {
     float x;
@@ -15,7 +17,7 @@ struct coords_t {
 
 struct map_object_t {
     int id;
-    const char* name;
+    const std::string name;
     coords_t coords;
 
     bool operator==(const map_object_t& other) const {

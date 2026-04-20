@@ -51,6 +51,8 @@ void MotorControl::update() {
     current_pos.x += delta_x;
     current_pos.y += delta_y;
 
+    shared_pos.set(current_pos.x, current_pos.y, current_pos.angle);
+
     ESP_LOGD(LOGGER_TAG, "Update position - x: %f, y: %f, angle: %f", current_pos.x, current_pos.y, current_pos.angle);
 
     switch(current_state) {
