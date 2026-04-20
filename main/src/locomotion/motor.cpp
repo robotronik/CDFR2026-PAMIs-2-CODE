@@ -48,7 +48,7 @@ Motor::Motor(gpio_num_t pin_a, gpio_num_t pin_b) : current_speed(0) {
 }
 
 void Motor::set_speed(float percentage) {  
-        uint32_t compare_val = (uint32_t)((abs(percentage) * 0.001));
+        uint32_t compare_val = (uint32_t)((abs(percentage) * 10.0));
         current_speed = percentage;
 
         if (percentage > 0.0f) {  
