@@ -42,7 +42,7 @@ void main_fsm() {
                 break;
             }
             case MainFSM_State::ERROR: {
-                ESP_LOGD(LOGGER_TAG, "ESP32 error! Reinitializing...");
+                ESP_LOGE(LOGGER_TAG, "ESP32 error! Reinitializing...");
                 // TODO further error handling / don't reboot automatically?
                 esp_restart();
                 break;
