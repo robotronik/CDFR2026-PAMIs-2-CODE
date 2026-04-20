@@ -21,12 +21,12 @@ class MotorControl {
         Motor motor_a;
         Motor motor_b;
 
-        coords target;
+        coords_t target;
 
         
     public:
         MotorControl();
-        void move(coords dest);
+        void move(coords_t dest);
         void start();
         void stop();
 };
