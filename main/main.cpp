@@ -19,6 +19,10 @@ void main_fsm() {
                 ESP_LOGD(LOGGER_TAG, "ESP32 in init state"); 
                 current_state = MainFSM_State::IDLE;
                 status_led.toggle();
+                
+                /* Init RTOS tasks: Core 0 navigation */
+                motor_task.start();
+                current_state = MainFSM_State::IDLE;
                 break;
             case MainFSM_State::IDLE:
                 ESP_LOGD(LOGGER_TAG, "ESP32 in idle state");
@@ -31,7 +35,7 @@ void main_fsm() {
                 current_state = MainFSM_State::IDLE;
                 break;
             case MainFSM_State::ERROR:
-                ESP_LOGD(LOGGER_TAG, "ESP32 error! Reinitializing...");
+                ESP_LOGE(LOGGER_TAG, "ESP32 error! Reinitializing...");
                 // TODO further error handling / don't reboot automatically?
                 esp_restart();
                 break;

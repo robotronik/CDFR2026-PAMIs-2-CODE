@@ -46,6 +46,22 @@ Motor::Motor(gpio_num_t pin_a, gpio_num_t pin_b) {
         MCPWM_GEN_COMPARE_EVENT_ACTION(MCPWM_TIMER_DIRECTION_UP, cmpr2, MCPWM_GEN_ACTION_LOW)));
 }
 
+void Motor::set_speed(float percentage) {  
+        uint32_t compare_val = (uint32_t)((abs(percentage) * 10.0));
+        current_speed = percentage;
+
+        if (percentage > 0.0f) {  
+            mcpwm_comparator_set_compare_value(this->cmpr1, compare_val);
+            mcpwm_comparator_set_compare_value(this->cmpr2, 0);
+        } else if (percentage < 0.0f) {
+            mcpwm_comparator_set_compare_value(this->cmpr1, 0);
+            mcpwm_comparator_set_compare_value(this->cmpr2, compare_val);
+        } else { 
+            mcpwm_comparator_set_compare_value(this->cmpr1, 0);
+            mcpwm_comparator_set_compare_value(this->cmpr2, 0);
+        }
+}
+
 void Motor::start() {
     ESP_ERROR_CHECK(mcpwm_timer_enable(timer));
     ESP_ERROR_CHECK(mcpwm_timer_start_stop(timer, MCPWM_TIMER_START_NO_STOP));

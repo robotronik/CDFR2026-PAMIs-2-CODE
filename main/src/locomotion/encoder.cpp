@@ -7,8 +7,9 @@
 Encoder::Encoder(gpio_num_t pin_a, gpio_num_t pin_b) {
     /* Unit setup */
     pcnt_unit_config_t unit_config = {
-        .low_limit = 1000, // todo check needed cnt resolution 
-        .high_limit = -1000,
+        .clk_src = PCNT_CLK_SRC_DEFAULT,
+        .low_limit = -100, // todo check needed cnt resolution 
+        .high_limit = 100,
         .intr_priority = 0,
         .flags = {}
     };
