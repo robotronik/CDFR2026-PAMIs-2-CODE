@@ -18,6 +18,8 @@ struct coords {
 
 class MotorControl { 
     private:
+        SharedPos& shared_pos;
+
         Encoder encoder_a;
         Encoder encoder_b;
         Motor motor_a;

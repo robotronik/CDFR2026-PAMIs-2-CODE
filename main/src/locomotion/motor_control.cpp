@@ -15,6 +15,8 @@ MotorControl::MotorControl()
 void MotorControl::move(coords dest) {
     // TODO: Control Logic
 
+    shared_pos.set(current_pos.x, current_pos.y, current_pos.angle);
+
     ESP_LOGD(LOGGER_TAG, "Received move order, coords: x: %f, y: %f", x, y);
 }
 
