@@ -19,7 +19,7 @@ StatusLed status_led(PIN_STATUS_LED);
 void main_fsm() {
     while(true) {
         switch(current_state) {
-            case MainFSM_State::INIT:
+            case MainFSM_State::INIT: {
                 ESP_LOGD(LOGGER_TAG, "ESP32 in init state");
                 
                 /* Init components if needed */
@@ -29,21 +29,25 @@ void main_fsm() {
                 motor_task.start();
                 current_state = MainFSM_State::IDLE;
                 break;
-            case MainFSM_State::IDLE:
+            }
+            case MainFSM_State::IDLE: {
                 ESP_LOGD(LOGGER_TAG, "ESP32 in idle state");
                 current_state = pull_switch.read() ? MainFSM_State::ACTIVE : MainFSM_State::IDLE;
                 break;
-            case MainFSM_State::ACTIVE:
+            }
+            case MainFSM_State::ACTIVE: {
                 ESP_LOGD(LOGGER_TAG, "ESP32 in active state");
                 // Nothing to do yet
                 vTaskDelay(pdMS_TO_TICKS(10)); // TODO: Don't forget to remove this when states are complete
                 current_state = MainFSM_State::IDLE;
                 break;
-            case MainFSM_State::ERROR:
+            }
+            case MainFSM_State::ERROR: {
                 ESP_LOGE(LOGGER_TAG, "ESP32 error! Reinitializing...");
                 // TODO further error handling / don't reboot automatically?
                 esp_restart();
                 break;
+            }
         }
     } 
 } 

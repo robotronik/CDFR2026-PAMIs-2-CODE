@@ -2,6 +2,8 @@
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "structs.h"
+#include <mutex>
 
 class RTOSTaskWrapper {
     private:
@@ -24,4 +26,14 @@ class RTOSTaskWrapper {
         void start();
         void stop();
         virtual ~RTOSTaskWrapper();
+};
+
+class SharedPos {
+    private:
+        coords_t position;
+        std::mutex mutex;
+
+    public:
+        void set(float new_x, float new_y, float new_angle);
+        coords_t get();
 };
