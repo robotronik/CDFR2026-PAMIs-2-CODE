@@ -1,19 +1,15 @@
 #pragma once
 #include "locomotion/motor.h"
 #include "locomotion/encoder.h"
+#include "rtos_wrapper.h"
+#include "structs.h"
+#include <mutex>
 
-
-struct coords {
-    float x;
-    float y;
-    float angle;
-
-    void updateAngle(float newAngle) {
-        angle = std::fmod(newAngle, 360.0f);
-        if (angle < 0) {
-            angle += 360.0f;
-        }
-    }
+enum MotorControlState {
+    ROTATION,
+    LINEAR,
+    START,
+    STOP
 };
 
 class MotorControl { 
