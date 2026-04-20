@@ -27,6 +27,7 @@ void main_fsm() {
                 
                 /* Init RTOS tasks: Core 0 navigation */
                 motor_task.start();
+                current_state = MainFSM_State::IDLE;
                 break;
             }
             case MainFSM_State::IDLE: {
