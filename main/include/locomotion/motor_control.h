@@ -14,19 +14,17 @@ enum MotorControlState {
 
 class MotorControl { 
     private:
-        SharedPos& shared_pos;
-
         Encoder encoder_a;
         Encoder encoder_b;
         Motor motor_a;
         Motor motor_b;
 
-        coords_t target;
-
-        
+        coords_t target_pos;
+        coords_t current_pos;
     public:
         MotorControl();
         void move(coords_t dest);
+        void update();
         void start();
         void stop();
 };

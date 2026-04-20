@@ -6,7 +6,7 @@
 class Map {
     private:
         std::vector<map_object_t> objects;
-        SharedPos& shared_pos; 
+        coords_t current_pos; 
     
     public:
         void add_object(map_object_t obj);

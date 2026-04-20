@@ -15,13 +15,10 @@ StatusLed status_led(PIN_STATUS_LED);
 void main_fsm() {
     while(true) {
         switch(current_state) {
-            case MainFSM_State::INIT: { {
+            case MainFSM_State::INIT: {
                 ESP_LOGD(LOGGER_TAG, "ESP32 in init state"); 
-                current_state = MainFSM_State::IDLE;
                 status_led.toggle();
-                
-                /* Init RTOS tasks: Core 0 navigation */
-                motor_task.start();
+                motor_control.start();
                 current_state = MainFSM_State::IDLE;
                 break;
             }

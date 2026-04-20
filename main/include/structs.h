@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include <atomic>
 
 struct coords_t {
     float x;

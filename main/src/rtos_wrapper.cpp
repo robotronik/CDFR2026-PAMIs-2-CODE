@@ -32,4 +32,5 @@ void SharedPos::set(float new_x, float new_y, float new_angle) {
 
 coords_t SharedPos::get() {
     std::lock_guard<std::mutex> lock(mutex);
+    return position;
 }

@@ -1,6 +1,5 @@
 #include "navigation/map.h"
 #include "structs.h"
-#include "constants.h"
 #include "math.h"
 
 void Map::add_object(map_object_t object) {
@@ -15,7 +14,6 @@ map_object_t Map::find_closest_object() {
     map_object_t result;
     float lowest_distance = INFINITY;
     for(const auto& object: objects) {
-        coords_t current_pos = shared_pos.get();
         float delta_x = current_pos.x - object.position.x;
         float delta_y = current_pos.y - object.position.y;
         float distance = sqrt(delta_x * delta_x + delta_y * delta_y);
@@ -35,26 +33,4 @@ map_object_t Map::find_object_by_name(std::string name) {
         }
     }
     return result;
-}
-#include "navigation/map.h"
-#include "structs.h"
-
-Map::Map() {
-       
-}
-
-void Map::add_object(map_object_t object) {
-    objects.push_back(object);
-}
-
-void Map::remove_object(map_object_t object) {
-    std::erase(objects, object);
-}
-
-map_object_t Map::find_closest_object() {
-    return;
-}
-
-map_object_t Map::find_object_by_name() {
-    return;
 }

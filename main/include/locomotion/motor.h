@@ -15,6 +15,7 @@ class Motor {
         Motor(gpio_num_t pin_a, gpio_num_t pin_b);
         void start();
         void stop();
+        void set_speed(float percentage);
 };
 
 

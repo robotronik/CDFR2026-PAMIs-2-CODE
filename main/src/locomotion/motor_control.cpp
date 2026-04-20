@@ -1,7 +1,12 @@
 #include "locomotion/motor_control.h"
 #include <esp_log.h>
+#include <math.h>
 
 static const char* LOGGER_TAG = "MotorControl";
+
+#define RAD_TO_DEG (180.0f / M_PI)
+#define DEG_TO_RAD (M_PI / 180.0f)
+#define WHEEL_DIST 0.2f // distance between the two wheels in meters, TODO: measure this
 
 MotorControl::MotorControl() 
    : encoder_a(PIN_HALL_A1, PIN_HALL_A2),
@@ -19,13 +24,11 @@ void MotorControl::move(coords_t new_target) {
     target_pos = new_target;
    
     // do not use pow for faster exponentiation
-    delta_initial = sqrt((target_pos.x - current_pos.x) * (target_pos.x - current_pos.x) + (target_pos.y - current_pos.y) * (target_pos.y - current_pos.y));
-    delta_angle_initial = target_pos.angle - current_pos.angle;
+    double delta_initial = sqrt((target_pos.x - current_pos.x) * (target_pos.x - current_pos.x) + (target_pos.y - current_pos.y) * (target_pos.y - current_pos.y));
+    double delta_angle_initial = target_pos.angle - current_pos.angle;
 
     // First angular target: Move to point
-    real_angle_target = atan2((target_pos.y - current_pos.y), (target_pos.x - current_pos.x))*RAD_TO_DEG;
-
-    current_state = MotorControlState::START;
+    double real_angle_target = atan2((target_pos.y - current_pos.y), (target_pos.x - current_pos.x))*RAD_TO_DEG;
 }
 
 void MotorControl::update() {
@@ -45,9 +48,7 @@ void MotorControl::update() {
     current_pos.x += delta_x;
     current_pos.y += delta_y;
 
-    shared_pos.set(current_pos.x, current_pos.y, current_pos.angle);
-
-    ESP_LOGD(LOGGER_TAG, "Received move order, coords: x: %f, y: %f", x, y);
+    //ESP_LOGD(LOGGER_TAG, "Received move order, coords: x: %f, y: %f", x, y);
 }
 
 void MotorControl::start() {

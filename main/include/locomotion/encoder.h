@@ -11,4 +11,5 @@ class Encoder {
         Encoder(gpio_num_t pin_a, gpio_num_t pin_b);
         void start();
         void stop();
+        float get_delta(){/* TODO*/ return 0.0f;};
 };
