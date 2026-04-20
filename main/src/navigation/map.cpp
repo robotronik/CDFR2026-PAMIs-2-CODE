@@ -13,7 +13,7 @@ void Map::remove_object(map_object_t object) {
 
 map_object_t Map::find_closest_object() {
     map_object_t result;
-    float lowest_distance = 100000.0f;
+    float lowest_distance = INFINITY;
     for(const auto& object: objects) {
         coords_t current_pos = shared_pos.get();
         float delta_x = current_pos.x - object.position.x;
