@@ -6,6 +6,7 @@
 #include <freertos/task.h>
 
 #include "main.h"
+#include "action.h"
 
 static const char* LOGGER_TAG = "MainFSM";
 static MainFSM_State current_state = MainFSM_State::INIT;
@@ -38,8 +39,10 @@ void main_fsm() {
             }
             case MainFSM_State::ACTIVE: {
                 ESP_LOGD(LOGGER_TAG, "ESP32 in active state");
-                // Nothing to do yet
-                // current_state = MainFSM_State::IDLE;
+                if (action_step()) {
+                    ESP_LOGI(LOGGER_TAG, "Action done, transitioning to done state");
+                    current_state = MainFSM_State::DONE;
+                }
                 break;
             }
             case MainFSM_State::DONE: {
