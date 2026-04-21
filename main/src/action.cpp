@@ -31,12 +31,12 @@ bool action_step() {
             // Wait until near the end of the match (85s)
 
             // as a test we read the ultrasonic sensor distance and log it
-            float distance_cm = 0.0f;
+            /*float distance_cm = 0.0f;
             if (ultrasonic.read_distance_cm(distance_cm) != ESP_OK) {
                 ESP_LOGE(LOGGER_TAG, "ultrasonic.read_distance_cm() failed");
             } else {
                 ESP_LOGI(LOGGER_TAG, "Ultrasonic distance: %.2f cm", distance_cm);
-            }
+            }*/
 
             if ((xTaskGetTickCount() - action_start_tick) >= ACTION_DELAY) {
                 step = 2;

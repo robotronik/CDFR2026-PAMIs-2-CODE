@@ -2,16 +2,16 @@
 #include "driver/gpio.h"
 
 // --- Hall Effect sensors ---
-#define PIN_HALL_A1 GPIO_NUM_32
-#define PIN_HALL_A2 GPIO_NUM_33
+#define PIN_HALL_A1 GPIO_NUM_33
+#define PIN_HALL_A2 GPIO_NUM_32
 #define PIN_HALL_B1 GPIO_NUM_36
 #define PIN_HALL_B2 GPIO_NUM_39
 
 // --- DC Drivers ---
-#define PIN_DC_A1 GPIO_NUM_17
-#define PIN_DC_A2 GPIO_NUM_18 
-#define PIN_DC_B1 GPIO_NUM_21
-#define PIN_DC_B2 GPIO_NUM_19
+#define PIN_DC_A1 GPIO_NUM_18 
+#define PIN_DC_A2 GPIO_NUM_17
+#define PIN_DC_B1 GPIO_NUM_19
+#define PIN_DC_B2 GPIO_NUM_21
 
 // --- Servomotors ---
 #define PIN_SERVO_1 GPIO_NUM_26
