@@ -49,4 +49,11 @@ void Encoder::stop() {
     ESP_ERROR_CHECK(pcnt_unit_disable(pcnt_unit));
 }
 
+float Encoder::get_delta() {
+    int count = 0;
+    ESP_ERROR_CHECK(pcnt_unit_get_count(pcnt_unit, &count));
+    ESP_ERROR_CHECK(pcnt_unit_clear_count(pcnt_unit));
+    return static_cast<float>(count);
+}
+
 

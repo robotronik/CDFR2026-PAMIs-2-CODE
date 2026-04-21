@@ -9,9 +9,9 @@
 
 // --- DC Drivers ---
 #define PIN_DC_A1 GPIO_NUM_17
-#define PIN_DC_A2 GPIO_NUM_18
-#define PIN_DC_B1 GPIO_NUM_19
-#define PIN_DC_B2 GPIO_NUM_21
+#define PIN_DC_A2 GPIO_NUM_18 
+#define PIN_DC_B1 GPIO_NUM_21
+#define PIN_DC_B2 GPIO_NUM_19
 
 // --- Servomotors ---
 #define PIN_SERVO_1 GPIO_NUM_26
