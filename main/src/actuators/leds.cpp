@@ -19,3 +19,8 @@ void StatusLed::toggle() {
     ESP_ERROR_CHECK(gpio_set_level(get_pin(), !current_state));
     current_state = !current_state;
 }
+
+void StatusLed::set(bool on) {
+    ESP_ERROR_CHECK(gpio_set_level(get_pin(), on));
+    current_state = on;
+}

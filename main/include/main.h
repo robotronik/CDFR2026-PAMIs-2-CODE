@@ -7,6 +7,7 @@ enum MainFSM_State {
     INIT,
     IDLE,
     ACTIVE,
+    DONE,
     ERROR
 };
 

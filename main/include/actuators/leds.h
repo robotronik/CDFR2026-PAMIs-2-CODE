@@ -15,6 +15,7 @@ class StatusLed: public Led {
     public:
         using Led::Led;
         void toggle();
+        void set(bool on);
 } ;
 
 class TeamLed: public Led {

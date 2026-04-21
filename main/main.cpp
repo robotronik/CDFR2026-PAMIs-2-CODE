@@ -17,7 +17,7 @@ StatusLed status_led(PIN_STATUS_LED);
 
 void main_fsm() {
     TickType_t last_wake_time = xTaskGetTickCount();
-
+    ESP_LOGI(LOGGER_TAG, "Starting main FSM");
     while(true) {
         switch(current_state) {
             case MainFSM_State::INIT: {
@@ -29,18 +29,26 @@ void main_fsm() {
             }
             case MainFSM_State::IDLE: {
                 ESP_LOGD(LOGGER_TAG, "ESP32 in idle state");
-                current_state = pull_switch.read() ? MainFSM_State::ACTIVE : MainFSM_State::IDLE;
+                if (pull_switch.read()){
+                    ESP_LOGI(LOGGER_TAG, "Pull switch activated, transitioning to active state");
+                    current_state = MainFSM_State::ACTIVE;
+                    status_led.set(false);
+                }
                 break;
             }
             case MainFSM_State::ACTIVE: {
                 ESP_LOGD(LOGGER_TAG, "ESP32 in active state");
                 // Nothing to do yet
-                current_state = MainFSM_State::IDLE;
+                // current_state = MainFSM_State::IDLE;
+                break;
+            }
+            case MainFSM_State::DONE: {
+                ESP_LOGD(LOGGER_TAG, "ESP32 in done state");
+                // Do nothing, just wait for reset
                 break;
             }
             case MainFSM_State::ERROR: {
                 ESP_LOGE(LOGGER_TAG, "ESP32 error! Reinitializing...");
-                // TODO further error handling / don't reboot automatically?
                 esp_restart();
                 break;
             }

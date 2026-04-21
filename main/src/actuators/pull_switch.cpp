@@ -12,5 +12,6 @@ PullSwitch::PullSwitch(gpio_num_t pin) : pin(pin) {
 }
 
 int PullSwitch::read() {
+    // TODO debouncing?
     return gpio_get_level(PIN_SW_TIRETTE) ? 0 : 1;
 }
