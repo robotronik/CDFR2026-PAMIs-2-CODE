@@ -56,4 +56,4 @@ bool action_step() {
     return false;
 }
 
-#endif
+#endif // NINJA
