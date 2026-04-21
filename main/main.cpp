@@ -15,6 +15,8 @@ static constexpr TickType_t MAIN_LOOP_PERIOD = pdMS_TO_TICKS(10); // 100Hz
 MotorControl motor_control;
 PullSwitch pull_switch(PIN_SW_TIRETTE);
 StatusLed status_led(PIN_STATUS_LED);
+Servo servo_1(PIN_SERVO_1);
+Servo servo_2(PIN_SERVO_2);
 
 void main_fsm() {
     TickType_t last_wake_time = xTaskGetTickCount();
@@ -25,6 +27,19 @@ void main_fsm() {
                 ESP_LOGD(LOGGER_TAG, "ESP32 in init state"); 
                 status_led.toggle();
                 motor_control.start();
+                esp_err_t err = servo_1.attach();
+                if (err != ESP_OK) {
+                    ESP_LOGE(LOGGER_TAG, "servo_1.attach() failed: %s", esp_err_to_name(err));
+                    current_state = MainFSM_State::ERROR;
+                    break;
+                }
+
+                err = servo_2.attach();
+                if (err != ESP_OK) {
+                    ESP_LOGE(LOGGER_TAG, "servo_2.attach() failed: %s", esp_err_to_name(err));
+                    current_state = MainFSM_State::ERROR;
+                    break;
+                }
                 current_state = MainFSM_State::IDLE;
                 break;
             }

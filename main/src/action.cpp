@@ -1,7 +1,10 @@
 #include "action.h"
 #include "main.h"
+#include <esp_log.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+
+static const char* LOGGER_TAG = "Action";
 
 #ifndef NINJA
 // Generic pami action
@@ -15,6 +18,12 @@ bool action_step() {
             // Initialize pami action resources here when needed.
             // Start the 85s timer
             action_start_tick = xTaskGetTickCount();
+            if (servo_1.write_angle(70) != ESP_OK) {
+                ESP_LOGE(LOGGER_TAG, "servo_1.write_angle(70) failed");
+            }
+            if (servo_2.write_angle(130) != ESP_OK) {
+                ESP_LOGE(LOGGER_TAG, "servo_2.write_angle(130) failed");
+            }
             step = 1;
             break;
         case 1:
@@ -25,6 +34,12 @@ bool action_step() {
             break;
         case 2:
             // Execute one pami action step here.
+            if (servo_1.write_angle(130) != ESP_OK) {
+                ESP_LOGE(LOGGER_TAG, "servo_1.write_angle(130) failed");
+            }
+            if (servo_2.write_angle(70) != ESP_OK) {
+                ESP_LOGE(LOGGER_TAG, "servo_2.write_angle(70) failed");
+            }
             step = 3;
             break;
         case 3:
