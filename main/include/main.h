@@ -3,6 +3,7 @@
 #include "actuators/pull_switch.h"
 #include "actuators/leds.h"
 #include "actuators/servo.h"
+#include "actuators/ultrasonic.h"
 
 // Pami 0 is ninja, so we can disable all the code related to it for now. 
 // This will make it easier to test the rest of the code
@@ -27,6 +28,7 @@ extern PullSwitch pull_switch;
 extern StatusLed status_led;
 extern Servo servo_1;
 extern Servo servo_2;
+extern Ultrasonic ultrasonic;
 
 void main_fsm();
 

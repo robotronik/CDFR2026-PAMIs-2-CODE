@@ -18,8 +18,9 @@
 #define PIN_SERVO_2 GPIO_NUM_27
 
 // --- Ultrasonic sensor ---
-#define PIN_US_TX GPIO_NUM_35
-#define PIN_US_RX GPIO_NUM_16
+// Board labels are inverted for HC-SR04 usage: RX drives TRIG, TX reads ECHO.
+#define PIN_US_TRIG GPIO_NUM_16
+#define PIN_US_ECHO GPIO_NUM_35
 
 // --- Utility ---
 #define PIN_BATTERY_LEVEL GPIO_NUM_34

@@ -17,6 +17,7 @@ PullSwitch pull_switch(PIN_SW_TIRETTE);
 StatusLed status_led(PIN_STATUS_LED);
 Servo servo_1(PIN_SERVO_1);
 Servo servo_2(PIN_SERVO_2);
+Ultrasonic ultrasonic(PIN_US_TRIG, PIN_US_ECHO);
 
 void main_fsm() {
     TickType_t last_wake_time = xTaskGetTickCount();
@@ -37,6 +38,13 @@ void main_fsm() {
                 err = servo_2.attach();
                 if (err != ESP_OK) {
                     ESP_LOGE(LOGGER_TAG, "servo_2.attach() failed: %s", esp_err_to_name(err));
+                    current_state = MainFSM_State::ERROR;
+                    break;
+                }
+
+                err = ultrasonic.init();
+                if (err != ESP_OK) {
+                    ESP_LOGE(LOGGER_TAG, "ultrasonic.init() failed: %s", esp_err_to_name(err));
                     current_state = MainFSM_State::ERROR;
                     break;
                 }
