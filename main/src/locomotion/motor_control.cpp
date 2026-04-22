@@ -24,7 +24,7 @@ constexpr float KD_ROT = 0.25f; // % per deg/s
 // Translation PID with distance error in mm and output in motor speed percentage.
 constexpr float KP_LIN = 4.0f;  // % per mm
 constexpr float KI_LIN = 1.0f;  // % per mm*s
-constexpr float KD_LIN = 1.0f;  // % per mm/s
+constexpr float KD_LIN = 1.5f;  // % per mm/s
 
 // Heading correction while translating (heading error in deg).
 constexpr float KP_STEER = 2.0f; // % per deg
