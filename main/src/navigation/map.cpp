@@ -1,3 +1,4 @@
+/* leave for v2
 #include "navigation/map.h"
 #include "structs.h"
 #include "math.h"
@@ -34,3 +35,4 @@ map_object_t Map::find_object_by_name(std::string name) {
     }
     return result;
 }
+*/

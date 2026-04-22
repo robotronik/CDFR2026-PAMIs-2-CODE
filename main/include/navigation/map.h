@@ -1,3 +1,4 @@
+/* leave for v2
 #pragma once
 #include "structs.h"
 #include <string>
@@ -14,3 +15,4 @@ class Map {
         map_object_t find_closest_object();
         map_object_t find_object_by_name(std::string name);
 };
+*/
