@@ -58,7 +58,7 @@ void main_fsm() {
                     current_state = MainFSM_State::ACTIVE;
                     status_led.set(false);
 
-                    motor_control.move({200.0f, 0.0f, 90.0f}); // move forward 500mm as a test
+                    motor_control.move({0.0f, 300.0f, 90.0f});
                 }
                 break;
             }

@@ -17,18 +17,18 @@ constexpr float HEADING_ALIGN_EPS_DEG = 10.0f;
 constexpr float FINAL_ANGLE_EPS_DEG = 4.0f;
 
 // Rotation PID with angular error in deg and output in motor speed percentage.
-constexpr float KP_ROT = 4.0f; // % per deg 
-constexpr float KI_ROT = 0.0f;  // % per deg*s
-constexpr float KD_ROT = 0.20f; // % per deg/s
+constexpr float KP_ROT = 5.0f; // % per deg 
+constexpr float KI_ROT = 0.2f;  // % per deg*s
+constexpr float KD_ROT = 0.25f; // % per deg/s
 
 // Translation PID with distance error in mm and output in motor speed percentage.
 constexpr float KP_LIN = 4.0f;  // % per mm
-constexpr float KI_LIN = 0.2f;  // % per mm*s
+constexpr float KI_LIN = 1.0f;  // % per mm*s
 constexpr float KD_LIN = 1.0f;  // % per mm/s
 
 // Heading correction while translating (heading error in deg).
 constexpr float KP_STEER = 2.0f; // % per deg
-constexpr float KI_STEER = 0.0f;  // % per deg*s
+constexpr float KI_STEER = 0.2f;  // % per deg*s
 constexpr float KD_STEER = 0.08f; // % per deg/s
 
 // Speed values are motor command percentages in [-100, 100].
@@ -124,7 +124,7 @@ void MotorControl::update() {
     }
 
     // ESP_LOGI(LOGGER_TAG, "delta_left: %.2f mm, delta_right: %.2f mm, delta_heading: %.2f deg", delta_left, delta_right, delta_heading_rad * RAD_TO_DEG);
-    // ESP_LOGI(LOGGER_TAG, "Position updated: x: %.2f mm, y: %.2f mm, angle: %.2f deg", current_pos.x, current_pos.y, current_pos.angle);
+    ESP_LOGI(LOGGER_TAG, "Position updated: x: %.2f mm, y: %.2f mm, angle: %.2f deg", current_pos.x, current_pos.y, current_pos.angle);
 
     if (!has_target) {
         motor_a.set_speed(0.0f);
