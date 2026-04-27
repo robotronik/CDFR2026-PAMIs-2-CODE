@@ -12,32 +12,32 @@ static const char* LOGGER_TAG = "MotorControl";
 #define WHEEL_CIRCUMFERENCE (2.0f * M_PI * WHEEL_RADIUS) // circumference of the wheels in mm
 
 namespace {
-constexpr float POSITION_EPS_MM = 8.0f;
-constexpr float HEADING_ALIGN_EPS_DEG = 10.0f;
-constexpr float FINAL_ANGLE_EPS_DEG = 4.0f;
+    constexpr float POSITION_EPS_MM = 8.0f;
+    constexpr float HEADING_ALIGN_EPS_DEG = 10.0f;
+    constexpr float FINAL_ANGLE_EPS_DEG = 4.0f;
 
-// Rotation PID with angular error in deg and output in motor speed percentage.
-constexpr float KP_ROT = 5.0f; // % per deg 
-constexpr float KI_ROT = 0.2f;  // % per deg*s
-constexpr float KD_ROT = 0.25f; // % per deg/s
+    // Rotation PID with angular error in deg and output in motor speed percentage.
+    constexpr float KP_ROT = 5.0f; // % per deg 
+    constexpr float KI_ROT = 0.2f;  // % per deg*s
+    constexpr float KD_ROT = 0.25f; // % per deg/s
 
-// Translation PID with distance error in mm and output in motor speed percentage.
-constexpr float KP_LIN = 4.0f;  // % per mm
-constexpr float KI_LIN = 1.0f;  // % per mm*s
-constexpr float KD_LIN = 1.5f;  // % per mm/s
+    // Translation PID with distance error in mm and output in motor speed percentage.
+    constexpr float KP_LIN = 4.0f;  // % per mm
+    constexpr float KI_LIN = 1.0f;  // % per mm*s
+    constexpr float KD_LIN = 1.5f;  // % per mm/s
 
-// Heading correction while translating (heading error in deg).
-constexpr float KP_STEER = 2.0f; // % per deg
-constexpr float KI_STEER = 0.2f;  // % per deg*s
-constexpr float KD_STEER = 0.08f; // % per deg/s
+    // Heading correction while translating (heading error in deg).
+    constexpr float KP_STEER = 2.0f; // % per deg
+    constexpr float KI_STEER = 0.2f;  // % per deg*s
+    constexpr float KD_STEER = 0.08f; // % per deg/s
 
-// Speed values are motor command percentages in [-100, 100].
-constexpr float MAX_TRANSLATION_SPEED = 80.0f;
-constexpr float MIN_TRANSLATION_SPEED = 22.0f;
-constexpr float MAX_ROTATION_SPEED = 75.0f;
-constexpr float MAX_MOTOR_SPEED = 100.0f;
-// Integral clamp for both translation and heading loops (error * second units).
-constexpr float MAX_INTEGRAL = 400.0f;
+    // Speed values are motor command percentages in [-100, 100].
+    constexpr float MAX_TRANSLATION_SPEED = 80.0f;
+    constexpr float MIN_TRANSLATION_SPEED = 22.0f;
+    constexpr float MAX_ROTATION_SPEED = 75.0f;
+    constexpr float MAX_MOTOR_SPEED = 100.0f;
+    // Integral clamp for both translation and heading loops (error * second units).
+    constexpr float MAX_INTEGRAL = 400.0f;
 }
 
 float MotorControl::normalize_angle_deg(float angle_deg) {
@@ -95,6 +95,7 @@ void MotorControl::move(coords_t new_target) {
     }
 
     has_target = true;
+    doing_final_rotation = false;
     reset_pid();
 
     // Start motion cleanly from this move command.
@@ -148,13 +149,22 @@ void MotorControl::update() {
     const float heading_error = normalize_angle_deg(angle_to_point - current_pos.angle);
     const float final_angle_error = normalize_angle_deg(target_pos.angle - current_pos.angle);
 
+    ESP_LOGI(LOGGER_TAG, "Actual heading error: %.lf", heading_error);
+    ESP_LOGI(LOGGER_TAG, "Final angle error: %.lf", final_angle_error);
+
     // Stage 1: rotate toward path. Stage 2: move while steering. Stage 3: final orientation on target angle.
-    bool at_target_position = distance_error <= POSITION_EPS_MM;
+   
+    bool at_target_position = doing_final_rotation ? true : distance_error <= POSITION_EPS_MM;
     bool do_rotation_only = at_target_position || (fabsf(heading_error) > HEADING_ALIGN_EPS_DEG);
+    if(at_target_position && !doing_final_rotation) {
+        doing_final_rotation = true;
+        reset_pid();
+    }
 
     if (at_target_position && fabsf(final_angle_error) <= FINAL_ANGLE_EPS_DEG) {
         has_target = false;
         reset_pid();
+        doing_final_rotation = false;
         motor_a.set_speed(0.0f);
         motor_b.set_speed(0.0f);
         ESP_LOGI(LOGGER_TAG, "Target reached at x: %.1f, y: %.1f, angle: %.1f", current_pos.x, current_pos.y, current_pos.angle);

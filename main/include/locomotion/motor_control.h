@@ -21,6 +21,7 @@ class MotorControl {
         coords_t target_pos;
         coords_t current_pos;
         bool has_target;
+        bool doing_final_rotation;
 
         float lin_integral;
         float lin_prev_error;
