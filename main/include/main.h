@@ -5,6 +5,8 @@
 #include "actuators/servo.h"
 #include "actuators/ultrasonic.h"
 
+#define N_PAMI == 0
+
 // Pami 0 is ninja, so we can disable all the code related to it for now. 
 // This will make it easier to test the rest of the code
 #ifndef N_PAMI

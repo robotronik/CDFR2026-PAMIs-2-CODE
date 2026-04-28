@@ -73,7 +73,7 @@ MotorControl::MotorControl()
      motor_a(PIN_DC_A1, PIN_DC_A2),
       motor_b(PIN_DC_B1, PIN_DC_B2),
       target_pos{0.0f, 0.0f, 0.0f},
-      current_pos{0.0f, 0.0f, 0.0f},
+      current_pos{0.0f, 0.0f, 90.0f},
       has_target(false),
       lin_integral(0.0f),
       lin_prev_error(0.0f),
@@ -157,8 +157,7 @@ void MotorControl::update() {
     bool at_target_position = doing_final_rotation ? true : distance_error <= POSITION_EPS_MM;
     bool do_rotation_only = at_target_position || (fabsf(heading_error) > HEADING_ALIGN_EPS_DEG);
     if(at_target_position && !doing_final_rotation) {
-        doing_final_rotation = true;
-        reset_pid();
+        doing_final_rotation = true; 
     }
 
     if (at_target_position && fabsf(final_angle_error) <= FINAL_ANGLE_EPS_DEG) {
