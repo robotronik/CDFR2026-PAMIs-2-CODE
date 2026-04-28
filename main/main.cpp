@@ -64,7 +64,7 @@ void main_fsm() {
                 // Update position
                 motor_control.update();
                 ESP_LOGD(LOGGER_TAG, "ESP32 in active state");
-                if (action_step(motor_control)) {
+                if (action_step()) {
                     ESP_LOGI(LOGGER_TAG, "Action done, transitioning to done state");
                     current_state = MainFSM_State::DONE;
                 }

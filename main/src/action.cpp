@@ -9,7 +9,7 @@ static const char* LOGGER_TAG = "Action";
 #define NINJA
 #ifndef NINJA
 // Generic pami action
-bool action_step(MotorControl& motor_control) {
+bool action_step() {
     static int step = 0;
     static TickType_t action_start_tick = 0;
     static constexpr TickType_t ACTION_DELAY = pdMS_TO_TICKS(1000);
