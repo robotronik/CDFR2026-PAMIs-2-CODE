@@ -1,4 +1,6 @@
 #include "actuators/switch.h"
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 
 Switch::Switch(gpio_num_t pin) : pin(pin) {
     gpio_config_t default_pull_config = {
@@ -12,6 +14,9 @@ Switch::Switch(gpio_num_t pin) : pin(pin) {
 }
 
 int Switch::read() {
-    // TODO debouncing?
+    if(gpio_get_level(pin) == 0) {
+        vTaskDelay(pdMS_TO_TICKS(50));
+        return (gpio_get_level(pin) == 0);
+    }
     return gpio_get_level(pin) ? 0 : 1;
 }

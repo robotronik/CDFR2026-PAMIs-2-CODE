@@ -57,19 +57,19 @@ void main_fsm() {
             case MainFSM_State::IDLE: {
                 ESP_LOGD(LOGGER_TAG, "ESP32 in idle state");
 
-                if(team_switch.read()) {
+                if(!team_switch.read()) {
                     team_led.set_color(255, 255, 0); 
-                } else {
+                } else { 
                     team_led.set_color(0, 255, 255);
                 }
-                /*
+                
                 if (pull_switch.read()){
                     ESP_LOGI(LOGGER_TAG, "Pull switch activated, transitioning to active state");
                     current_state = MainFSM_State::ACTIVE;
                     status_led.set(false);
 
                     motor_control.move({0.0f, 300.0f, 180.0f});
-                }*/
+                }
                 break;
             }
             case MainFSM_State::ACTIVE: {
