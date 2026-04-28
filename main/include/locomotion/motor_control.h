@@ -1,7 +1,6 @@
 #pragma once
 #include <stdint.h>
 #include "locomotion/motor.h"
-#include "locomotion/encoder.h"
 #include "structs.h"
 
 enum MotorControlState {
@@ -13,8 +12,6 @@ enum MotorControlState {
 
 class MotorControl { 
     private:
-        Encoder encoder_a;
-        Encoder encoder_b;
         Motor motor_a;
         Motor motor_b;
 
@@ -30,8 +27,6 @@ class MotorControl {
 
         int64_t last_control_us;
 
-        static float normalize_angle_deg(float angle_deg);
-        static float clamp(float value, float min_value, float max_value);
         void reset_pid();
     public:
         MotorControl();

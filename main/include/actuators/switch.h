@@ -1,10 +1,10 @@
 #pragma once
 #include "pins.h"
 
-class PullSwitch {
+class Switch {
     private:
         gpio_num_t pin;
     public:
-        PullSwitch(gpio_num_t pin);
+        Switch(gpio_num_t pin);
         int read();
 };
