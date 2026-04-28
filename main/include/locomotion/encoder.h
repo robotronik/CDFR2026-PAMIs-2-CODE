@@ -12,4 +12,5 @@ class Encoder {
         void start();
         void stop();
         float get_delta();
+        float get_count();
 };

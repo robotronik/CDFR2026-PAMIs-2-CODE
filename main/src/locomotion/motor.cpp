@@ -1,6 +1,17 @@
 #include "locomotion/motor.h"
 #include "hal/mcpwm_types.h"
 
+namespace {
+    static const char* LOGGER_TAG = "Motor";
+
+    // PID constants for motor percentage.
+    constexpr float KP = 0.5f;
+    constexpr float KI = 0.0f;
+    constexpr float KD = 0.0f;
+
+    constexpr float MAX_TICKS_PER_SECOND = 1000.0f; // TODO : measure the real max tick speed
+}
+
 Motor::Motor(gpio_num_t pin_a, gpio_num_t pin_b) {
     /* Timer setup */
     mcpwm_timer_config_t timer_config = {};
@@ -46,19 +57,85 @@ Motor::Motor(gpio_num_t pin_a, gpio_num_t pin_b) {
         MCPWM_GEN_COMPARE_EVENT_ACTION(MCPWM_TIMER_DIRECTION_UP, cmpr2, MCPWM_GEN_ACTION_LOW)));
 }
 
-void Motor::set_speed(float percentage) {  
-        uint32_t compare_val = (uint32_t)((abs(percentage) * 10.0));
+float Motor::clamp(float value, float min_value, float max_value) {
+    if (value < min_value) {
+        return min_value;
+    }
+    if (value > max_value) {
+        return max_value;
+    }
+    return value;
+}
 
-        if (percentage > 0.0f) {  
-            mcpwm_comparator_set_compare_value(this->cmpr1, compare_val);
-            mcpwm_comparator_set_compare_value(this->cmpr2, 0);
-        } else if (percentage < 0.0f) {
-            mcpwm_comparator_set_compare_value(this->cmpr1, 0);
-            mcpwm_comparator_set_compare_value(this->cmpr2, compare_val);
-        } else { 
-            mcpwm_comparator_set_compare_value(this->cmpr1, 0);
-            mcpwm_comparator_set_compare_value(this->cmpr2, 0);
-        }
+void Motor::set_speed(float percentage) {
+
+    this->filtered_speed = this->alpha * percentage + (1.0f - this->alpha) * this->filtered_speed;
+    
+    const int64_t now_us = esp_timer_get_time();
+    float dt_s = 0.01f;
+    if (this->last_control_us != 0) {
+        dt_s = (now_us - this->last_control_us) / 1000000.0f;
+        dt_s = this->clamp(dt_s, 0.001f, 0.1f);
+    }
+    this->last_control_us = now_us;
+
+    float current_ticks = this->encoder ? this->encoder->get_count() : 0.0f;
+    float delta_ticks = current_ticks - this->prev_ticks;
+    this->prev_ticks = current_ticks;
+
+    float ticks_per_sec = delta_ticks / dt_s;
+    float measured_speed_percent = (ticks_per_sec / MAX_TICKS_PER_SECOND) * 100.0f;
+
+    float error = this->filtered_speed - measured_speed_percent;
+
+    this->integral_error += error * dt_s;
+
+    float max_integral = 200.0f; // Evite l'embalement
+    if (this->integral_error > max_integral) {
+        this->integral_error = max_integral;
+    } else if (this->integral_error < -max_integral) {
+        this->integral_error = -max_integral;
+    }
+
+    float derivative_error = (error - this->prev_error) / dt_s;
+    this->prev_error = error;
+
+    float command_speed_percent = (KP * error) + (KI * this->integral_error) + (KD * derivative_error);
+    if (command_speed_percent > 100.0f) {
+        command_speed_percent = 100.0f;
+    } else if (command_speed_percent < -100.0f) {
+        command_speed_percent = -100.0f;
+    }
+
+    float command_speed_val = (uint32_t)((abs(command_speed_percent) * 10.0f));
+
+    if (command_speed_percent > 0.0f) {  
+        mcpwm_comparator_set_compare_value(this->cmpr1, command_speed_val);
+        mcpwm_comparator_set_compare_value(this->cmpr2, 0);
+    } else if (command_speed_percent < 0.0f) {
+        mcpwm_comparator_set_compare_value(this->cmpr1, 0);
+        mcpwm_comparator_set_compare_value(this->cmpr2, command_speed_val);
+    } else { 
+        mcpwm_comparator_set_compare_value(this->cmpr1, 0);
+        mcpwm_comparator_set_compare_value(this->cmpr2, 0);
+    }
+    
+}
+
+void Motor::set_speed_pid(float percentage) {
+
+    uint32_t compare_val = (uint32_t)((abs(percentage) * 10.0));
+
+    if (percentage > 0.0f) {  
+        mcpwm_comparator_set_compare_value(this->cmpr1, compare_val);
+        mcpwm_comparator_set_compare_value(this->cmpr2, 0);
+    } else if (percentage < 0.0f) {
+        mcpwm_comparator_set_compare_value(this->cmpr1, 0);
+        mcpwm_comparator_set_compare_value(this->cmpr2, compare_val);
+    } else { 
+        mcpwm_comparator_set_compare_value(this->cmpr1, 0);
+        mcpwm_comparator_set_compare_value(this->cmpr2, 0);
+    }
 }
 
 void Motor::start() {
