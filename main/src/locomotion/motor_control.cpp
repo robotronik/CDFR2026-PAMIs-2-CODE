@@ -35,29 +35,8 @@ namespace {
     constexpr float MAX_TRANSLATION_SPEED = 80.0f;
     constexpr float MIN_TRANSLATION_SPEED = 22.0f;
     constexpr float MAX_ROTATION_SPEED = 75.0f;
-    constexpr float MAX_MOTOR_SPEED = 100.0f;
     // Integral clamp for both translation and heading loops (error * second units).
     constexpr float MAX_INTEGRAL = 400.0f;
-}
-
-float MotorControl::normalize_angle_deg(float angle_deg) {
-    while (angle_deg > 180.0f) {
-        angle_deg -= 360.0f;
-    }
-    while (angle_deg < -180.0f) {
-        angle_deg += 360.0f;
-    }
-    return angle_deg;
-}
-
-float MotorControl::clamp(float value, float min_value, float max_value) {
-    if (value < min_value) {
-        return min_value;
-    }
-    if (value > max_value) {
-        return max_value;
-    }
-    return value;
 }
 
 void MotorControl::reset_pid() {
@@ -68,10 +47,8 @@ void MotorControl::reset_pid() {
 }
 
 MotorControl::MotorControl() 
-   : encoder_a(PIN_HALL_A1, PIN_HALL_A2),
-     encoder_b(PIN_HALL_B1, PIN_HALL_B2),
-     motor_a(PIN_DC_A1, PIN_DC_A2),
-      motor_b(PIN_DC_B1, PIN_DC_B2),
+    : motor_a(PIN_DC_A1, PIN_DC_A2, PIN_HALL_A1, PIN_HALL_A2),
+      motor_b(PIN_DC_B1, PIN_DC_B2, PIN_HALL_B1, PIN_HALL_B2),
       target_pos{0.0f, 0.0f, 0.0f},
       current_pos{0.0f, 0.0f, 0.0f},
       has_target(false),
@@ -103,9 +80,8 @@ void MotorControl::move(coords_t new_target) {
 }
 
 void MotorControl::update() {
-    float count_to_mm = 2.0f * WHEEL_CIRCUMFERENCE / 1050.0f; // convert count to mm
-    float delta_right = encoder_a.get_delta() * count_to_mm;
-    float delta_left = encoder_b.get_delta() * count_to_mm;
+    float delta_right = motor_a.get_delta() * WHEEL_CIRCUMFERENCE;
+    float delta_left = motor_b.get_delta() * WHEEL_CIRCUMFERENCE;
 
     float heading_rad = current_pos.angle * DEG_TO_RAD;
     float delta_heading_rad = (delta_right - delta_left) / WHEEL_DIST;
@@ -117,19 +93,14 @@ void MotorControl::update() {
     current_pos.y += delta_center_mm * sin(heading_mid_rad);
     current_pos.angle += delta_heading_rad * RAD_TO_DEG;
 
-    if (current_pos.angle >= 360.0f || current_pos.angle < 0.0f) {
-        current_pos.angle = fmodf(current_pos.angle, 360.0f);
-        if (current_pos.angle < 0.0f) {
-            current_pos.angle += 360.0f;
-        }
-    }
+    current_pos.angle = normalize_angle_deg(current_pos.angle);
 
-    // ESP_LOGI(LOGGER_TAG, "delta_left: %.2f mm, delta_right: %.2f mm, delta_heading: %.2f deg", delta_left, delta_right, delta_heading_rad * RAD_TO_DEG);
-    ESP_LOGI(LOGGER_TAG, "Position updated: x: %.2f mm, y: %.2f mm, angle: %.2f deg", current_pos.x, current_pos.y, current_pos.angle);
+    //ESP_LOGI(LOGGER_TAG, "delta_left: %.2f mm, delta_right: %.2f mm, delta_heading: %.2f deg", delta_left, delta_right, delta_heading_rad * RAD_TO_DEG);
+    //ESP_LOGI(LOGGER_TAG, "Position updated: x: %.2f mm, y: %.2f mm, angle: %.2f deg", current_pos.x, current_pos.y, current_pos.angle);
 
     if (!has_target) {
-        motor_a.set_speed(0.0f);
-        motor_b.set_speed(0.0f);
+        motor_a.set_speed_pid(0.0f);
+        motor_b.set_speed_pid(0.0f);
         return;
     }
 
@@ -165,8 +136,8 @@ void MotorControl::update() {
         has_target = false;
         reset_pid();
         doing_final_rotation = false;
-        motor_a.set_speed(0.0f);
-        motor_b.set_speed(0.0f);
+        motor_a.set_speed_pid(0.0f);
+        motor_b.set_speed_pid(0.0f);
         ESP_LOGI(LOGGER_TAG, "Target reached at x: %.1f, y: %.1f, angle: %.1f", current_pos.x, current_pos.y, current_pos.angle);
         return;
     }
@@ -215,15 +186,11 @@ void MotorControl::update() {
         right_speed = lin_cmd + steer_cmd;
     }
 
-    left_speed = clamp(left_speed, -MAX_MOTOR_SPEED, MAX_MOTOR_SPEED);
-    right_speed = clamp(right_speed, -MAX_MOTOR_SPEED, MAX_MOTOR_SPEED);
-    motor_a.set_speed(right_speed);
-    motor_b.set_speed(left_speed);
+    motor_a.set_speed_pid(right_speed);
+    motor_b.set_speed_pid(left_speed);
 }
 
 void MotorControl::start() {
-    encoder_a.start();
-    encoder_b.start();
     motor_a.start();
     motor_b.start();
 
@@ -231,8 +198,6 @@ void MotorControl::start() {
 }
 
 void MotorControl::stop() {
-    encoder_a.stop();
-    encoder_b.stop();
     motor_a.stop();
     motor_b.stop();
 

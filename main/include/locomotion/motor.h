@@ -15,22 +15,22 @@ class Motor {
         mcpwm_gen_handle_t gen2;
 
 
-        float filtered_speed = 0.0f;
         const float alpha = 0.5f; // c'est arbitraire
         float prev_ticks = 0.0f;
         int64_t last_control_us = 0;
         float integral_error = 0.0f;
         float prev_error = 0.0f;
-        Encoder* encoder = nullptr;
+        Encoder encoder;
 
     public: 
-        Motor(gpio_num_t pin_a, gpio_num_t pin_b);
-        void set_encoder(Encoder* enc) { this->encoder = enc; }
+        Motor(gpio_num_t motor_pin_a, gpio_num_t motor_pin_b, gpio_num_t encoder_pin_a, gpio_num_t encoder_pin_b);
         void start();
         void stop();
         void set_speed_pid(float percentage);
         void set_speed(float percentage);
-        float clamp(float value, float min_value, float max_value);
+        float get_delta();
+
+        float filtered_speed = 0.0f; // out of 100%
 };
 
 

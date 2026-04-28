@@ -55,11 +55,3 @@ float Encoder::get_delta() {
     ESP_ERROR_CHECK(pcnt_unit_clear_count(pcnt_unit));
     return static_cast<float>(count);
 }
-
-float Encoder::get_count() {
-    int count = 0;
-    ESP_ERROR_CHECK(pcnt_unit_get_count(pcnt_unit, &count));
-    return static_cast<float>(count);
-}
-
-
