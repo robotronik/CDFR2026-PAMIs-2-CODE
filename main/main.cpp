@@ -69,6 +69,7 @@ void main_fsm() {
                     status_led.set(false);
 
                     motor_control.move({0.0f, 300.0f, 180.0f});
+
                 }
                 break;
             }

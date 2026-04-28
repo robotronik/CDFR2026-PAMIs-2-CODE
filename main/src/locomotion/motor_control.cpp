@@ -120,8 +120,32 @@ void MotorControl::update() {
     const float heading_error = normalize_angle_deg(angle_to_point - current_pos.angle);
     const float final_angle_error = normalize_angle_deg(target_pos.angle - current_pos.angle);
 
-    ESP_LOGI(LOGGER_TAG, "Actual heading error: %.lf", heading_error);
-    ESP_LOGI(LOGGER_TAG, "Final angle error: %.lf", final_angle_error);
+    //ESP_LOGI(LOGGER_TAG, "Actual heading error: %.lf", heading_error);
+    //ESP_LOGI(LOGGER_TAG, "Final angle error: %.lf", final_angle_error);
+
+
+    printf(">Motor_A_Real_Speed:%f\n", motor_a.filtered_speed);
+    
+
+
+    int64_t uptime_ms = esp_timer_get_time() / 1000;
+    
+    float test_speed = 0.0f;
+    if ((uptime_ms % 4000) < 2000) {
+        // Pendant les 2 premières secondes
+        test_speed = 20.0f;
+    } else {
+        // Après 2 secondes
+        test_speed = 80.0f;
+    }
+
+    // On force la vitesse des deux moteurs
+    motor_a.set_speed_pid(test_speed);
+    motor_b.set_speed_pid(test_speed);
+
+
+    printf(">Motor_A_Test_Speed:%f\n", test_speed);
+    return;
 
     // Stage 1: rotate toward path. Stage 2: move while steering. Stage 3: final orientation on target angle.
    
@@ -186,8 +210,9 @@ void MotorControl::update() {
         right_speed = lin_cmd + steer_cmd;
     }
 
-    motor_a.set_speed_pid(right_speed);
-    motor_b.set_speed_pid(left_speed);
+    // motor_a.set_speed_pid(right_speed);
+    // motor_b.set_speed_pid(left_speed);
+
 }
 
 void MotorControl::start() {
