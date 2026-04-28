@@ -1,6 +1,6 @@
 #pragma once 
 #include "locomotion/motor_control.h"
-#include "actuators/pull_switch.h"
+#include "actuators/switch.h"
 #include "actuators/leds.h"
 #include "actuators/servo.h"
 #include "actuators/ultrasonic.h"
@@ -24,8 +24,10 @@ enum MainFSM_State {
 };
 
 extern MotorControl motor_control;
-extern PullSwitch pull_switch;
+extern Switch pull_switch;
+extern Switch team_switch;
 extern StatusLed status_led;
+extern TeamLed team_led;
 extern Servo servo_1;
 extern Servo servo_2;
 extern Ultrasonic ultrasonic;
