@@ -1,10 +1,15 @@
 #include "action.h"
 #include "main.h"
+#include "navigation/map.h"
 #include <esp_log.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
-static const char* LOGGER_TAG = "Action";
+static const char* LOGGER_TAG = "Action"; 
+Map waypoint_map;
+
+// add every point coords 
+waypoint_map.add_object({100.0f, 300.0f, 0.0f}, "point1");
 
 #define NINJA
 #ifndef NINJA

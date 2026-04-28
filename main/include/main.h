@@ -25,6 +25,11 @@ enum MainFSM_State {
     ERROR
 };
 
+enum Team {
+    YELLOW,
+    BLUE
+};
+
 extern MotorControl motor_control;
 extern Switch pull_switch;
 extern Switch team_switch;
@@ -33,6 +38,8 @@ extern TeamLed team_led;
 extern Servo servo_1;
 extern Servo servo_2;
 extern Ultrasonic ultrasonic;
+
+extern Team current_team;
 
 void main_fsm();
 
