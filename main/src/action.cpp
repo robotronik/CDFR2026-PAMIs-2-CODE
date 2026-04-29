@@ -15,54 +15,44 @@ Map waypoint_map;
 */
 
 bool action_state() {
-    static int state = 0;
+    static PamiAction state = PamiAction::BEGIN;
+    static PamiAction next_state;
     static TickType_t action_start_tick = 0;
     static constexpr TickType_t ACTION_DELAY = pdMS_TO_TICKS(1000);
 
     switch (state) {
-        case 0:
+        case PamiAction::BEGIN: {
             // Initialize pami action resources here when needed.
+
             // Start the 85s timer
             action_start_tick = xTaskGetTickCount();
-            if (servo_1.write_angle(70) != ESP_OK) {
-                ESP_LOGE(LOGGER_TAG, "servo_1.write_angle(70) failed");
-            }
-            if (servo_2.write_angle(130) != ESP_OK) {
-                ESP_LOGE(LOGGER_TAG, "servo_2.write_angle(130) failed");
-            }
-            state = 1;
+            state = PamiAction::WAIT;
             break;
-        case 1:
-        {
-            // Wait until near the end of the match (85s)
-
-            // as a test we read the ultrasonic sensor distance and log it
-            /*float distance_cm = 0.0f;
-            if (ultrasonic.read_distance_cm(distance_cm) != ESP_OK) {
-                ESP_LOGE(LOGGER_TAG, "ultrasonic.read_distance_cm() failed");
-            } else {
-                ESP_LOGI(LOGGER_TAG, "Ultrasonic distance: %.2f cm", distance_cm);
-            }*/
-
-            if ((xTaskGetTickCount() - action_start_tick) >= ACTION_DELAY) {
-                state = 2;
-            }
         }
-            break;
-        case 2:
-            // Execute one pami action state here.
-            if (servo_1.write_angle(130) != ESP_OK) {
-                ESP_LOGE(LOGGER_TAG, "servo_1.write_angle(130) failed");
+        case PamiAction::WAIT:{
+            // Wait until near the end of the match (85s)
+            if ((xTaskGetTickCount() - action_start_tick) >= ACTION_DELAY) {
+                state = PamiAction::NEXT_STEP;
             }
-            if (servo_2.write_angle(70) != ESP_OK) {
-                ESP_LOGE(LOGGER_TAG, "servo_2.write_angle(70) failed");
-            }
-            state = 3;
             break;
-        case 3:
+        }
+        case PamiAction::NEXT_STEP: {
+            map_object_t next = waypoint_map.get_next_object();
+            motor_control.move(next.coords);
+            next_state = next.next_action;
+            state = PamiAction::MOVING;
+            break;
+        }
+        case PamiAction::MOVING: {
+            if(motor_control.target_reached()) {
+                state = next_state;
+            }
+            break;
+        }
+        case PamiAction::END: {
             // Finalize pami action resources here when needed.
-            state = 0;
             return true;
+        }
     }
     return false;
 }
@@ -127,8 +117,6 @@ bool action_state() {
     return false;
 }
 
-#endif // NINJA
-
 /* Helpers */
 void take_stock() {
     // state 1: Lower claw
@@ -157,3 +145,5 @@ void release_stock() {
     servo_2.write_angle(60);
     vTaskDelay(SERVO_DELAY);
 }
+
+#endif // NINJA

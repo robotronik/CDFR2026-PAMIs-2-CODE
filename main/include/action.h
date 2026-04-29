@@ -4,6 +4,7 @@
 #ifndef NINJA 
 enum class PamiAction {
     BEGIN,
+    WAIT,
     NEXT_STEP,
     MOVING,
     END
