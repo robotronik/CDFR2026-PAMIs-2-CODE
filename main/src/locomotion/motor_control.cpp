@@ -202,3 +202,7 @@ void MotorControl::stop() {
 
     ESP_LOGD(LOGGER_TAG, "stop");
 }
+
+bool MotorControl::target_reached() {
+    return !has_target;
+}

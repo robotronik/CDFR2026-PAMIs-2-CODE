@@ -34,4 +34,5 @@ class MotorControl {
         void update();
         void start();
         void stop();
+        bool target_reached();
 };

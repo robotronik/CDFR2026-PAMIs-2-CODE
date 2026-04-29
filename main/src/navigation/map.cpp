@@ -2,15 +2,20 @@
 #include "structs.h"
 #include "math.h"
 
+/* Implements a map of waypoints with an associated action to do after reaching
+ * said waypoint (next_action) using a double ended queue. Logic is FIFO.
+ * Refer to action.cpp for actual logic
+*/
+
 void Map::add_object(map_object_t object) {
     objects.push_back(object);
 }
 
-void Map::add_object(coords_t object_coords, std::string name) {
-    map_object_t new_object = {
-        .id = objects.size(),
+void Map::add_object(coords_t object_coords, std::string name, PamiAction next_action) {
+    map_object_t new_object = { 
         .name = name,
-        .coords = object_coords
+        .coords = object_coords,
+        .next_action = next_action
     };
     objects.push_back(new_object);    
 }
@@ -32,6 +37,10 @@ map_object_t Map::find_object_by_name(std::string name) {
         }
     }
     return result;
+}
+
+map_object_t Map::get_next_object() {
+    return objects.front();
 }
 
 /*
