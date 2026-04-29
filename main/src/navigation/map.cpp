@@ -1,6 +1,7 @@
 #include "navigation/map.h"
 #include "structs.h"
 #include "math.h"
+#include <algorithm>
 
 /* Implements a map of waypoints with an associated action to do after reaching
  * said waypoint (next_action) using a double ended queue. Logic is FIFO.
@@ -25,23 +26,26 @@ void Map::remove_object(map_object_t object) {
 }
 
 void Map::remove_object(std::string name) {
-    map_object_t object = find_object_by_name(name);
-    std::erase(objects, object);
+    objects.erase(std::remove_if(objects.begin(), objects.end(), 
+                                 [&name](const map_object_t& obj) { return obj.name == name; }),
+                                objects.end());
 } 
 
 map_object_t Map::find_object_by_name(std::string name) {
-    map_object_t result;
     for(const auto& object : objects ) {
         if(object.name == name) {
-            result = object;
+            return object;
         }
-    }
-    return result;
+    }    map_object_t result;
+    return {};
 }
 
 map_object_t Map::get_next_object() {
+    if(objects.empty()) {
+        return {};
+    }
     map_object_t object = objects.front();
-    remove_object(object);
+    objects.pop_front();
     return object;
 }
 
