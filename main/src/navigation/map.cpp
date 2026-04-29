@@ -4,8 +4,8 @@
 
 /* Implements a map of waypoints with an associated action to do after reaching
  * said waypoint (next_action) using a double ended queue. Logic is FIFO.
- * Refer to action.cpp for actual logic
-*/
+ * Refer to action.
+ */
 
 void Map::add_object(map_object_t object) {
     objects.push_back(object);
@@ -40,7 +40,9 @@ map_object_t Map::find_object_by_name(std::string name) {
 }
 
 map_object_t Map::get_next_object() {
-    return objects.front();
+    map_object_t object = objects.front();
+    remove_object(object);
+    return object;
 }
 
 /*
