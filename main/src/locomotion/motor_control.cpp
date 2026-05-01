@@ -8,62 +8,46 @@ static const char* LOGGER_TAG = "MotorControl";
 #define RAD_TO_DEG (180.0f / M_PI)
 #define DEG_TO_RAD (M_PI / 180.0f)
 #define WHEEL_DIST 88.0f // distance between the two wheels in mm, TODO: measure this
-#define WHEEL_RADIUS 13.0f // radius of the wheels in mm, TODO: measure this
+#define WHEEL_RADIUS 12.3f // radius of the wheels in mm, TODO: measure this
 #define WHEEL_CIRCUMFERENCE (2.0f * M_PI * WHEEL_RADIUS) // circumference of the wheels in mm
 
 namespace {
-    constexpr float POSITION_EPS_MM = 8.0f;
+    constexpr float POSITION_EPS_MM = 5.0f;
     constexpr float HEADING_ALIGN_EPS_DEG = 10.0f;
-    constexpr float FINAL_ANGLE_EPS_DEG = 4.0f;
+    constexpr float FINAL_ANGLE_EPS_DEG = 2.0f;
 
-    // Rotation PID with angular error in deg and output in motor speed percentage.
-    constexpr float KP_ROT = 5.0f; // % per deg 
-    constexpr float KI_ROT = 0.0f;  // % per deg*s
-    constexpr float KD_ROT = 0.0f; // % per deg/s
+    // Rotation P-control with angular error in deg and output in motor speed percentage.
+    constexpr float KP_ROT = 1.3f; // % per deg
 
-    // Translation PID with distance error in mm and output in motor speed percentage.
+    // Translation P-control with distance error in mm and output in motor speed percentage.
     constexpr float KP_LIN = 1.0f;  // % per mm
-    constexpr float KI_LIN = 0.0;  // % per mm*s
-    constexpr float KD_LIN = 0.0f;  // % per mm/s
 
     // Heading correction while translating (heading error in deg).
-    constexpr float KP_STEER = 0.5f; // % per deg
-    constexpr float KI_STEER = 0.0f;  // % per deg*s
-    constexpr float KD_STEER = 0.0f; // % per deg/s
+    constexpr float KP_STEER = 0.02f; // % per deg
 
     // Speed values are motor command percentages in [-100, 100].
-    constexpr float MAX_TRANSLATION_SPEED = 80.0f;
-    constexpr float MAX_ROTATION_SPEED = 75.0f;
-    // Integral clamp for both translation and heading loops (error * second units).
-    constexpr float MAX_INTEGRAL = 400.0f;
+    constexpr float MAX_TRANSLATION_SPEED = 60.0f;
+    constexpr float MAX_ROTATION_SPEED = 35.0f;
 }
 
-void MotorControl::reset_pid() {
-    lin_integral = 0.0f;
-    lin_prev_error = 0.0f;
-    ang_integral = 0.0f;
-    ang_prev_error = 0.0f;
-}
 
 MotorControl::MotorControl() 
     : motor_a(PIN_DC_A1, PIN_DC_A2, PIN_HALL_A1, PIN_HALL_A2),
       motor_b(PIN_DC_B1, PIN_DC_B2, PIN_HALL_B1, PIN_HALL_B2),
-      target_pos{0.0f, 0.0f, 0.0f},
-      current_pos{0.0f, 0.0f, 0.0f},
-      has_target(false),
-      lin_integral(0.0f),
-      lin_prev_error(0.0f),
-      ang_integral(0.0f),
-      ang_prev_error(0.0f),
-      last_control_us(0)
+    target_pos{0.0f, 0.0f, 0.0f},
+    current_pos{0.0f, 0.0f, 0.0f},
+    has_target(false),
+    doing_final_rotation(false),
+    turn_end(false),
+    last_control_us(0)
 {
    ESP_LOGD(LOGGER_TAG, "init");
 }
 
-void MotorControl::move(coords_t new_target) {
-    ESP_LOGD(LOGGER_TAG, "Received move order, coords: x: %f, y: %f, angle: %f", new_target.x, new_target.y, new_target.angle);
+bool MotorControl::goTo(coords_t new_target, bool turnEnd) {
+    ESP_LOGD(LOGGER_TAG, "Received goTo order, coords: x: %f, y: %f, angle: %f, turnEnd: %d", new_target.x, new_target.y, new_target.angle, (int)turnEnd);
 
-    // TODO: safety checks (bounds)
+    // set and normalize
     target_pos = new_target;
     target_pos.angle = fmodf(target_pos.angle, 360.0f);
     if (target_pos.angle < 0.0f) {
@@ -72,13 +56,16 @@ void MotorControl::move(coords_t new_target) {
 
     has_target = true;
     doing_final_rotation = false;
-    reset_pid();
+    turn_end = turnEnd;
 
-    // Start motion cleanly from this move command.
+    // Start motion cleanly from this command.
     last_control_us = esp_timer_get_time();
+
+    // Perform one step of control immediately
+    return goTo(turnEnd);
 }
 
-void MotorControl::update() {
+bool MotorControl::goTo(bool turnEnd) {
     float delta_right = motor_a.get_delta() * WHEEL_CIRCUMFERENCE;
     float delta_left = motor_b.get_delta() * WHEEL_CIRCUMFERENCE;
 
@@ -86,7 +73,6 @@ void MotorControl::update() {
     float delta_heading_rad = (delta_right - delta_left) / WHEEL_DIST;
     float delta_center_mm = (delta_left + delta_right) * 0.5f;
 
-    // Midpoint integration with 0 deg aligned to +X (standard frame): x=cos(theta), y=sin(theta).
     float heading_mid_rad = heading_rad + (delta_heading_rad * 0.5f);
     current_pos.x += delta_center_mm * cos(heading_mid_rad);
     current_pos.y += delta_center_mm * sin(heading_mid_rad);
@@ -94,13 +80,10 @@ void MotorControl::update() {
 
     current_pos.angle = normalize_angle_deg(current_pos.angle);
 
-    //ESP_LOGI(LOGGER_TAG, "delta_left: %.2f mm, delta_right: %.2f mm, delta_heading: %.2f deg", delta_left, delta_right, delta_heading_rad * RAD_TO_DEG);
-    //ESP_LOGI(LOGGER_TAG, "Position updated: x: %.2f mm, y: %.2f mm, angle: %.2f deg", current_pos.x, current_pos.y, current_pos.angle);
-
     if (!has_target) {
         motor_a.set_speed_pid(0.0f);
         motor_b.set_speed_pid(0.0f);
-        return;
+        return true;
     }
 
     const int64_t now_us = esp_timer_get_time();
@@ -119,97 +102,65 @@ void MotorControl::update() {
     const float heading_error = normalize_angle_deg(angle_to_point - current_pos.angle);
     const float final_angle_error = normalize_angle_deg(target_pos.angle - current_pos.angle);
 
-
-    // Stage 1: rotate toward path. Stage 2: move while steering. Stage 3: final orientation on target angle.
     bool at_target_position = doing_final_rotation ? true : distance_error <= POSITION_EPS_MM;
     bool do_rotation_only = at_target_position || (fabsf(heading_error) > HEADING_ALIGN_EPS_DEG);
     if(at_target_position && !doing_final_rotation) {
         doing_final_rotation = true;
-        reset_pid();
     }
 
-    if (at_target_position && fabsf(final_angle_error) <= FINAL_ANGLE_EPS_DEG) {
-        has_target = false;
-        reset_pid();
-        doing_final_rotation = false;
-        motor_a.set_speed_pid(0.0f);
-        motor_b.set_speed_pid(0.0f);
-        ESP_LOGI(LOGGER_TAG, "Target reached at x: %.1f, y: %.1f, angle: %.1f", current_pos.x, current_pos.y, current_pos.angle);
-        return;
+    // Arrival logic: if not required to turn at the end, accept position-only arrival.
+    if (at_target_position) {
+        if (!turnEnd && !turn_end) {
+            has_target = false;
+            doing_final_rotation = false;
+            motor_a.set_speed_pid(0.0f);
+            motor_b.set_speed_pid(0.0f);
+            ESP_LOGI(LOGGER_TAG, "Target reached (pos) at x: %.1f, y: %.1f, angle: %.1f", current_pos.x, current_pos.y, current_pos.angle);
+            return true;
+        }
+        // if turn at end required, only finish when final angle within epsilon
+        if (fabsf(final_angle_error) <= FINAL_ANGLE_EPS_DEG) {
+            has_target = false;
+            doing_final_rotation = false;
+            motor_a.set_speed_pid(0.0f);
+            motor_b.set_speed_pid(0.0f);
+            ESP_LOGI(LOGGER_TAG, "Target reached at x: %.1f, y: %.1f, angle: %.1f", current_pos.x, current_pos.y, current_pos.angle);
+            return true;
+        }
     }
 
     float left_speed = 0.0f;
     float right_speed = 0.0f;
 
     if (do_rotation_only) {
-        // Begin rotation PID without translation
+        // P-only rotation control
         float rot_error = at_target_position ? final_angle_error : heading_error;
-
-        ang_integral += rot_error * dt_s;
-        ang_integral = clamp(ang_integral, -MAX_INTEGRAL, MAX_INTEGRAL);
-
-        float ang_derivative = (rot_error - ang_prev_error) / dt_s;
-        ang_prev_error = rot_error;
-
-        float rot_cmd = (KP_ROT * rot_error) + (KI_ROT * ang_integral) + (KD_ROT * ang_derivative);
+        float rot_cmd = (KP_ROT * rot_error);
         rot_cmd = clamp(rot_cmd, -MAX_ROTATION_SPEED, MAX_ROTATION_SPEED);
 
-        // Command after correction
         left_speed = -rot_cmd;
         right_speed = rot_cmd;
-
-        // Do not carry linear integral/derivative through pure rotation phases.
-        lin_integral = 0.0f;
-        lin_prev_error = 0.0f;
     } else {
-        // Begin translation PID
-        lin_integral += distance_error * dt_s;
-        lin_integral = clamp(lin_integral, -MAX_INTEGRAL, MAX_INTEGRAL);
-
-        float lin_derivative = (distance_error - lin_prev_error) / dt_s;
-        lin_prev_error = distance_error;
-
-        float lin_cmd = (KP_LIN * distance_error) + (KI_LIN * lin_integral) + (KD_LIN * lin_derivative);
+        // P-only translation + P steering
+        float lin_cmd = (KP_LIN * distance_error);
         lin_cmd = clamp(lin_cmd, 0.0f, MAX_TRANSLATION_SPEED);
 
-        // Begin steering PID while translating
-        ang_integral += heading_error * dt_s;
-        ang_integral = clamp(ang_integral, -MAX_INTEGRAL, MAX_INTEGRAL);
-        
-        float ang_derivative = (heading_error - ang_prev_error) / dt_s;
-        ang_prev_error = heading_error;
-
-        float steer_cmd = (KP_STEER * heading_error) + (KI_STEER * ang_integral) + (KD_STEER * ang_derivative);
+        float steer_cmd = (KP_STEER * heading_error);
         steer_cmd = clamp(steer_cmd, -MAX_ROTATION_SPEED, MAX_ROTATION_SPEED);
 
-        // Command after correction
         left_speed = lin_cmd - steer_cmd;
         right_speed = lin_cmd + steer_cmd;
+
+        // Debug angle outputs
+        printf(">Heading_error:%f\n", heading_error);
+        printf(">Réponse_angle:%f\n", steer_cmd);
     }
 
-    // LOG and Graph zone
-    printf(">Consigne_vitesse:%f\n", right_speed);
-    printf(">Réponse_vitesse:%f\n", motor_a.filtered_speed);
 
-    printf(">Consigne_pos_X:%f\n", target_pos.x);
-    printf(">Réponse_pos_X:%f\n", current_pos.x);
-
-    printf(">Consigne_pos_Y:%f\n", target_pos.y);
-    printf(">Réponse_pos_Y:%f\n", current_pos.y);
-
-    // heading angle graph
-    printf(">Consigne_angle_to_point:%f\n", angle_to_point);
-    printf(">Réponse_angle_to_point:%f\n", current_pos.angle);
-
-    // pos angle graph
-    printf(">Consigne_angle:%f\n", target_pos.angle);
-    printf(">Réponse_angle:%f\n", current_pos.angle);
-
-
-    // Final motor command after correction
     motor_a.set_speed_pid(right_speed);
     motor_b.set_speed_pid(left_speed);
 
+    return false;
 }
 
 void MotorControl::start() {

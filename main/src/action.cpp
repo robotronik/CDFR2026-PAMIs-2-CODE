@@ -6,6 +6,8 @@
 
 static const char* LOGGER_TAG = "Action";
 
+void move_in_square();
+
 #ifndef NINJA
 // Generic pami action
 bool action_step() {
@@ -37,6 +39,10 @@ bool action_step() {
             } else {
                 ESP_LOGI(LOGGER_TAG, "Ultrasonic distance: %.2f cm", distance_cm);
             }*/
+
+            /*
+            */
+            move_in_square();
 
             if ((xTaskGetTickCount() - action_start_tick) >= ACTION_DELAY) {
                 step = 2;
@@ -83,3 +89,21 @@ bool action_step() {
 }
 
 #endif // NINJA
+
+void move_in_square(){
+    static int step = 0;
+    switch (step) {
+        case 0:
+            if (motor_control.goTo({200.0f, 0.0f, 0.0f})) step ++;
+            break;
+        case 1:
+            if (motor_control.goTo({200.0f, 200.0f, 0.0})) step ++;
+            break;
+        case 2:
+            if (motor_control.goTo({0.0f, 200.0f, 0.0f})) step ++;
+            break;
+        case 3:
+            if (motor_control.goTo({0.0f, 0.0f, 0.0f})) step = 0;
+            break;
+    }
+}
