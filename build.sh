@@ -22,7 +22,7 @@ setup_idf() {
 # Function to build the project
 build_project() {
     echo "Starting build process..."
-    idf.py build
+    idf.py --ccache build
 }
 
 # Function to clean the build directory
@@ -34,7 +34,7 @@ clean_project() {
 # Function to deploy (flash) the firmware
 deploy_project() {
     echo "Deploying firmware to $PORT..."
-    idf.py -p "$PORT" flash monitor
+    idf.py --ccache -p "$PORT" flash monitor
 }
 
 # Function to reset (erase) the ESP firmware

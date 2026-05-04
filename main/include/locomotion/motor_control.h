@@ -34,4 +34,5 @@ class MotorControl {
             bool goTo(bool turnEnd = false);
         void start();
         void stop();
+        bool target_reached();
 };

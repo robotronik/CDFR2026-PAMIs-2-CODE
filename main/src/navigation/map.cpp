@@ -1,16 +1,55 @@
-/* leave for v2
 #include "navigation/map.h"
 #include "structs.h"
 #include "math.h"
+#include <algorithm>
+
+/* Implements a map of waypoints with an associated action to do after reaching
+ * said waypoint (next_action) using a double ended queue. Logic is FIFO.
+ * Refer to action.
+ */
 
 void Map::add_object(map_object_t object) {
     objects.push_back(object);
+}
+
+void Map::add_object(coords_t object_coords, std::string name, PamiAction next_action) {
+    map_object_t new_object = { 
+        .name = name,
+        .coords = object_coords,
+        .next_action = next_action
+    };
+    objects.push_back(new_object);    
 }
 
 void Map::remove_object(map_object_t object) {
     std::erase(objects, object);
 }
 
+void Map::remove_object(std::string name) {
+    objects.erase(std::remove_if(objects.begin(), objects.end(), 
+                                 [&name](const map_object_t& obj) { return obj.name == name; }),
+                                objects.end());
+} 
+
+map_object_t Map::find_object_by_name(std::string name) {
+    for(const auto& object : objects ) {
+        if(object.name == name) {
+            return object;
+        }
+    }    map_object_t result;
+    return {};
+}
+
+map_object_t Map::get_next_object() {
+    if(objects.empty()) {
+        return {};
+    }
+    map_object_t object = objects.front();
+    objects.pop_front();
+    return object;
+}
+
+/*
 map_object_t Map::find_closest_object() {
     map_object_t result;
     float lowest_distance = INFINITY;
@@ -26,13 +65,4 @@ map_object_t Map::find_closest_object() {
     return result;
 }
 
-map_object_t Map::find_object_by_name(std::string name) {
-    map_object_t result;
-    for(const auto& object : objects ) {
-        if(object.name == name) {
-            result = object;
-        }
-    }
-    return result;
-}
 */

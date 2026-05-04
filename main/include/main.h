@@ -5,22 +5,32 @@
 #include "actuators/servo.h"
 #include "actuators/ultrasonic.h"
 
+// 0 error only
+// 1 info 
+// 2 debug activated 
+#define DEBUG_LEVEL 2
+
 // Pami 0 is ninja, so we can disable all the code related to it for now. 
 // This will make it easier to test the rest of the code
 #ifndef N_PAMI
-#define N_PAMI 1
+#define N_PAMI 0
 #endif
 
 #if N_PAMI == 0
 #define NINJA
 #endif
 
-enum MainFSM_State {
+enum MainFSMState {
     INIT,
     IDLE,
     ACTIVE,
     DONE,
     ERROR
+};
+
+enum Team {
+    YELLOW,
+    BLUE
 };
 
 extern MotorControl motor_control;
@@ -31,6 +41,8 @@ extern TeamLed team_led;
 extern Servo servo_1;
 extern Servo servo_2;
 extern Ultrasonic ultrasonic;
+
+extern Team current_team;
 
 void main_fsm();
 

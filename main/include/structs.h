@@ -34,12 +34,5 @@ struct coords_t {
     }
 };
 
-struct map_object_t {
-    int id;
-    std::string name;
-    coords_t position;
 
-    bool operator==(const map_object_t& other) const {
-        return id == other.id;
-    }
-};
+
