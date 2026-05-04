@@ -4,9 +4,15 @@
 #include <esp_rom_sys.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+#include "sdkconfig.h"
 
 #include "main.h"
 #include "action.h"
+
+#if CONFIG_ENABLE_REMOTE_LOGGING
+    #include "wireless/wifi.h"
+    #include "wireless/web_server.h"
+#endif
 
 static const char* LOGGER_TAG = "MainFSM";
 static MainFSMState current_state = MainFSMState::INIT;
@@ -100,5 +106,18 @@ void main_fsm() {
 } 
 
 extern "C" void app_main(void) {
-   main_fsm(); 
+    #if DEBUG_LEVEL == 0
+        esp_log_level_set("*", ESP_LOG_ERROR);
+    #elif DEBUG_LEVEL == 1
+        esp_log_level_set("*", ESP_LOG_INFO);
+    #else
+        esp_log_level_set("*", ESP_LOG_DEBUG);
+    #endif
+
+    #if CONFIG_ENABLE_REMOTE_LOGGING
+        wifi_init();
+        start_webserver(); 
+    #endif
+
+    main_fsm(); 
 }

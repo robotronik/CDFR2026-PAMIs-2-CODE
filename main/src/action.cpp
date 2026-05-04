@@ -8,6 +8,8 @@
 static const char* LOGGER_TAG = "Action"; 
 Map waypoint_map;
 
+#define NINJA
+
 #ifndef NINJA
 /* -----------------------------
  * GENERIC PAMI ACTION
