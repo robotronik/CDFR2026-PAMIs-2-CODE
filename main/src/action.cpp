@@ -10,6 +10,8 @@ Map waypoint_map;
 
 #define NINJA
 
+void move_in_square();
+
 #ifndef NINJA
 /* -----------------------------
  * GENERIC PAMI ACTION

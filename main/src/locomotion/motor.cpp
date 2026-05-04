@@ -4,9 +4,8 @@
 
 namespace {
     // PID constants for motor percentage.
-    constexpr float KP = 4.0f;
-    constexpr float KI = 0.0f;
-    constexpr float KD = 0.0f;
+    constexpr float KP = 1.5f;
+    constexpr float KI = 25.0f;
 
     constexpr float MAX_TICKS_PER_SECOND = 2700.0f; // TODO : measure the real max tick speed
 }
@@ -81,17 +80,14 @@ void Motor::set_speed_pid(float percentage) {
 
     this->integral_error += error * dt_s;
 
-    float max_integral = 80.0f; // Evite l'embalement
+    float max_integral = 100.0f; // Evite l'embalement
     if (this->integral_error > max_integral) {
         this->integral_error = max_integral;
     } else if (this->integral_error < -max_integral) {
         this->integral_error = -max_integral;
     }
 
-    float derivative_error = (error - this->prev_error) / dt_s;
-    this->prev_error = error;
-
-    float command_speed_percent = (KP * error) + (KI * this->integral_error) + (KD * derivative_error);
+    float command_speed_percent = (KP * error) + (KI * this->integral_error);
 
     this->set_speed(command_speed_percent);    
 }

@@ -15,7 +15,7 @@ class Motor {
         mcpwm_gen_handle_t gen2;
 
 
-        const float alpha = 0.5f; // c'est arbitraire
+        const float alpha = 0.4f; // c'est arbitraire
         float prev_ticks = 0.0f;
         int64_t last_control_us = 0;
         float integral_error = 0.0f;
