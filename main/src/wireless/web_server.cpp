@@ -1,6 +1,8 @@
+#include "main.h"
 #include "wireless/web_server.h"
 #include <esp_http_server.h>
 #include <esp_log.h>
+#include <mdns.h>
 #include <string.h>
 
 static const char *LOGGER_TAG = "WEB_LOG";
@@ -47,6 +49,20 @@ static esp_err_t root_get_handler(httpd_req_t *req) {
     return httpd_resp_send(req, (const char *)index_html_start, index_html_size);
 }
 
+static void setup_mdns() {
+    esp_err_t err = mdns_init();
+    if(err) {
+        ESP_LOGE(LOGGER_TAG, "mDNS init failed: %d", err);
+        return;
+    }   
+
+    ESP_ERROR_CHECK(mdns_hostname_set("pami-" STR(N_PAMI)));
+    ESP_ERROR_CHECK(mdns_instance_name_set("PAMI robotronik" STR(N_PAMI)));
+    mdns_service_add(NULL, "_http", "_tcp", 80, NULL, 0);
+
+    ESP_LOGD(LOGGER_TAG, "mDNS active: Access at http://pami.local");
+}
+
 void start_webserver(void) {
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.lru_purge_enable = true;
@@ -72,6 +88,8 @@ void start_webserver(void) {
  
         default_vprintf = esp_log_set_vprintf(web_log_vprintf);
         
+        setup_mdns();
+
         ESP_LOGD(LOGGER_TAG, "Server running! Open your browser to view logs.");
     } else {
         ESP_LOGE(LOGGER_TAG, "Failed to start web server!");
