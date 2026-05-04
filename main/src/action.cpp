@@ -43,7 +43,7 @@ bool action_step() {
             /*
             */
             move_in_square();
-
+            
             if ((xTaskGetTickCount() - action_start_tick) >= ACTION_DELAY) {
                 step = 2;
             }

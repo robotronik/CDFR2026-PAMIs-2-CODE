@@ -67,7 +67,7 @@ void main_fsm() {
                     ESP_LOGI(LOGGER_TAG, "Pull switch activated, transitioning to active state");
                     current_state = MainFSM_State::ACTIVE;
                     status_led.set(false);
-                    motor_control.goTo({0.0f, 0.0f, 0.0f});
+                    motor_control.goTo({0.0f, 100.0f, 90.0f}, true);
                 }
                 break;
             }
