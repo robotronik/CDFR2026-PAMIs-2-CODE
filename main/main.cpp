@@ -76,13 +76,12 @@ void main_fsm() {
                     ESP_LOGI(LOGGER_TAG, "Pull switch activated, transitioning to active state");
                     current_state = MainFSMState::ACTIVE;
                     status_led.set(false); 
-                    motor_control.goTo({0.0f, 0.0f, 0.0f});
+                    motor_control.goTo({0.0f, 0.0f, 0.0f}, false);
                 }
                 break;
             }
             case MainFSMState::ACTIVE: {
                 // Update position
-                ;
                 ESP_LOGD(LOGGER_TAG, "ESP32 in active state");
                 if (action_state()) {
                     ESP_LOGI(LOGGER_TAG, "Action done, transitioning to done state");

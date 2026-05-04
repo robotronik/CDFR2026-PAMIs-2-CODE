@@ -82,9 +82,10 @@ bool action_state() {
             // Initialize ninja action resources here when needed.
 
             // add every point coords 
-            waypoint_map.add_object({150.0f, 450.0f, 0.0f}, "point1", PamiAction::TAKE); // stock 1 
-            waypoint_map.add_object({100.0f, 750.0f, 0.0f}, "point2", PamiAction::TAKE); // stock 2
-            waypoint_map.add_object({200.0f, 200.0f, 0.0f}, "point3", PamiAction::TAKE); // stock 3
+            waypoint_map.add_object({200.0f, 0.0f, 0.0f}, "point1", PamiAction::NEXT_STEP); 
+            waypoint_map.add_object({200.0f, 200.0f, 0.0f}, "point2", PamiAction::NEXT_STEP);; 
+            waypoint_map.add_object({0.0f, 200.0f, 0.0f}, "point3", PamiAction::NEXT_STEP);
+            waypoint_map.add_object({0.0f, 0.0f, 0.0f}, "point4", PamiAction::BEGIN);
 
             state = PamiAction::NEXT_STEP;
             break;
@@ -97,7 +98,7 @@ bool action_state() {
             break;
         }
         case PamiAction::MOVING: {
-            motor_control.goTo(next_coords);
+            motor_control.goTo(next_coords, false);
             if(motor_control.target_reached()) {
                 state = next_state;
             }
