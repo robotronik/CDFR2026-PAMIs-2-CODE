@@ -8,10 +8,6 @@
 static const char* LOGGER_TAG = "Action"; 
 Map waypoint_map;
 
-#define NINJA
-
-void move_in_square();
-
 #ifndef NINJA
 /* -----------------------------
  * GENERIC PAMI ACTION
@@ -23,6 +19,7 @@ bool action_state() {
     static PamiAction next_state;
     static TickType_t action_start_tick = 0;
     static constexpr TickType_t ACTION_DELAY = pdMS_TO_TICKS(1000);
+    static coords_t next_coords;
 
     switch (state) {
         case PamiAction::BEGIN: {
@@ -42,12 +39,13 @@ bool action_state() {
         }
         case PamiAction::NEXT_STEP: {
             map_object_t next = waypoint_map.get_next_object();
-            motor_control.move(next.coords);
+            next_coords = next.coords;
             next_state = next.next_action;
             state = PamiAction::MOVING;
             break;
         }
         case PamiAction::MOVING: {
+            motor_control.goTo(next_coords);
             if(motor_control.target_reached()) {
                 state = next_state;
             }
@@ -70,13 +68,14 @@ bool action_state() {
 static constexpr TickType_t SERVO_DELAY = pdMS_TO_TICKS(500); 
 
 /*
-Strategy 1: move to stocks, throw them in the nest, put empty nut cases in fridge 
+Strategy 1: goTo to stocks, throw them in the nest, put empty nut cases in fridge 
 then push last stock over
 */
 
 bool action_state() {
     static PamiAction state = PamiAction::BEGIN;
     static PamiAction next_state;
+    static coords_t next_coords;
 
     switch (state) {
         case PamiAction::BEGIN: {
@@ -92,12 +91,13 @@ bool action_state() {
         }
         case PamiAction::NEXT_STEP: {
             map_object_t next = waypoint_map.get_next_object();
-            motor_control.move(next.coords);
+            next_coords = next.coords;
             next_state = next.next_action;
             state = PamiAction::MOVING;
             break;
         }
         case PamiAction::MOVING: {
+            motor_control.goTo(next_coords);
             if(motor_control.target_reached()) {
                 state = next_state;
             }
