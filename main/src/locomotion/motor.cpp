@@ -88,7 +88,7 @@ void Motor::set_speed_pid(float percentage) {
     }
 
     float command_speed_percent = (KP * error) + (KI * this->integral_error);
-
+  
     this->set_speed(command_speed_percent);    
 }
 

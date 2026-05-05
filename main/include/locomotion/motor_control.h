@@ -17,11 +17,30 @@ class MotorControl {
 
         coords_t target_pos;
         coords_t current_pos;
+
         bool has_target;
         bool doing_final_rotation;
         bool turn_end;
         int64_t last_control_us;
         
+        // Store last error for derivative corrector
+        float last_rot_error = 0.0f;
+        float last_distance_error = 0.0f;
+        float last_heading_error = 0.0f;
+
+        // Filter
+        float last_rot_derivative = 0.0f;
+        float last_lin_derivative = 0.0f;
+        float last_steer_derivative = 0.0f;  
+        
+        // Approach control
+        float approach_angle;
+
+        // Speed ramp 
+        float previous_lin_cmd = 0.0f;
+        float previous_rot_cmd = 0.0f;
+        float previous_steer_cmd = 0.0f;
+
     public:
         MotorControl();
             // Set a new destination and return true if already at destination.

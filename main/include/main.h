@@ -4,6 +4,7 @@
 #include "actuators/leds.h"
 #include "actuators/servo.h"
 #include "actuators/ultrasonic.h"
+#include "battery_monitor.h"
 
 // 0 error only
 // 1 info 
@@ -41,6 +42,7 @@ extern TeamLed team_led;
 extern Servo servo_1;
 extern Servo servo_2;
 extern Ultrasonic ultrasonic;
+extern BatteryMonitor battery_monitor;
 
 extern Team current_team;
 

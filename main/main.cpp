@@ -27,6 +27,7 @@ TeamLed team_led(PIN_TEAM_RGB);
 Servo servo_1(PIN_SERVO_1);
 Servo servo_2(PIN_SERVO_2);
 Ultrasonic ultrasonic(PIN_US_TRIG, PIN_US_ECHO);
+BatteryMonitor battery_monitor(ADC_UNIT_1, ADC_CHANNEL_6);
 
 void main_fsm() {
     TickType_t last_wake_time = xTaskGetTickCount();
@@ -36,7 +37,7 @@ void main_fsm() {
             case MainFSMState::INIT: {
                 ESP_LOGD(LOGGER_TAG, "ESP32 in init state"); 
                 status_led.toggle(); 
-                team_led.set_color(255, 0, 0);
+                team_led.set_color(0, 255, 0);
                 motor_control.start();
                 esp_err_t err = servo_1.attach();
                 if (err != ESP_OK) {
@@ -58,6 +59,14 @@ void main_fsm() {
                     current_state = MainFSMState::ERROR;
                     break;
                 }
+
+                float battery_level = battery_monitor.readVoltage();
+                if(battery_level < 6.5f) {
+                    ESP_LOGI(LOGGER_TAG, "Low battery warning!");
+                    team_led.set_color(255, 0, 0);
+                    vTaskDelay(500);
+                }
+
                 current_state = MainFSMState::IDLE;
                 break;
             }
