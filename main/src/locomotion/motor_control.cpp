@@ -153,7 +153,7 @@ bool MotorControl::goTo(bool turnEnd) {
         float rot_error = at_target_position ? final_angle_error : heading_error;
 
         float rot_derivative = (rot_error - last_rot_error) / dt_s;
-        rot_derivative = (ALPHA * last_rot_derivative) + (ALPHA * rot_derivative);
+        rot_derivative = ((1.0f - ALPHA) * last_rot_derivative) + (ALPHA * rot_derivative);
         last_rot_derivative = rot_derivative;
         last_rot_error = rot_error;
 
@@ -171,7 +171,7 @@ bool MotorControl::goTo(bool turnEnd) {
     } else {
         // P-only translation + P steering
         float lin_derivative = (distance_error - last_distance_error) / dt_s;
-        lin_derivative = (ALPHA * last_lin_derivative) + (ALPHA * last_lin_derivative);
+        lin_derivative = ((1.0f - ALPHA) * last_lin_derivative) + (ALPHA * lin_derivative);
         last_lin_derivative = lin_derivative;
 
         float lin_cmd = (KP_LIN * distance_error + KD_LIN * lin_derivative);
@@ -186,7 +186,7 @@ bool MotorControl::goTo(bool turnEnd) {
         previous_lin_cmd = lin_cmd;
 
         float steer_derivative = (heading_error - last_heading_error) / dt_s;
-        steer_derivative = (ALPHA * last_steer_derivative) + (ALPHA * steer_derivative);
+        steer_derivative = ((1.0f * ALPHA) * last_steer_derivative) + (ALPHA * steer_derivative);
         last_steer_derivative = steer_derivative; 
 
         float steer_cmd = (KP_STEER * heading_error + KD_STEER * (heading_error - last_heading_error) / dt_s);
