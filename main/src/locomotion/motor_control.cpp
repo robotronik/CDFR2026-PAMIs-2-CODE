@@ -158,6 +158,7 @@ bool MotorControl::goTo(bool turnEnd) {
         last_rot_error = rot_error;
 
         float rot_cmd = (KP_ROT * rot_error + KD_ROT * rot_derivative);
+        /* Speed ramp */
         if(rot_cmd > previous_rot_cmd + SPEED_STEP) {
             rot_cmd = previous_rot_cmd + SPEED_STEP;
         } else if(rot_cmd < previous_rot_cmd - SPEED_STEP) {
@@ -169,7 +170,9 @@ bool MotorControl::goTo(bool turnEnd) {
         left_speed = -rot_cmd;
         right_speed = rot_cmd;
     } else {
-        // P-only translation + P steering
+        // PD translation + PD steering
+        
+        /* Translation calculations */
         float lin_derivative = (distance_error - last_distance_error) / dt_s;
         lin_derivative = ((1.0f - ALPHA) * last_lin_derivative) + (ALPHA * lin_derivative);
         last_lin_derivative = lin_derivative;
@@ -177,6 +180,7 @@ bool MotorControl::goTo(bool turnEnd) {
         float lin_cmd = (KP_LIN * distance_error + KD_LIN * lin_derivative);
         last_distance_error = distance_error;
         
+        /* Speed ramp */
         if(lin_cmd > previous_lin_cmd + SPEED_STEP) {
             lin_cmd = previous_lin_cmd + SPEED_STEP;
         } else if(lin_cmd < previous_lin_cmd - SPEED_STEP) {
@@ -185,12 +189,15 @@ bool MotorControl::goTo(bool turnEnd) {
         lin_cmd = clamp(lin_cmd, 0.0f, MAX_TRANSLATION_SPEED);
         previous_lin_cmd = lin_cmd;
 
+        /* Steering calculations */
         float steer_derivative = (heading_error - last_heading_error) / dt_s;
         steer_derivative = ((1.0f - ALPHA) * last_steer_derivative) + (ALPHA * steer_derivative);
         last_steer_derivative = steer_derivative; 
 
         float steer_cmd = (KP_STEER * heading_error + KD_STEER * steer_derivative);
         last_heading_error = heading_error;
+
+        /* Speed ramp */
         if(steer_cmd > previous_steer_cmd + SPEED_STEP) {
             steer_cmd = previous_steer_cmd + SPEED_STEP;
         } else if(steer_cmd < previous_steer_cmd - SPEED_STEP) {
@@ -203,9 +210,8 @@ bool MotorControl::goTo(bool turnEnd) {
         right_speed = lin_cmd + steer_cmd;
 
         // Debug angle outputs
-        ESP_LOGI(LOGGER_TAG, "Current angle: %lf", current_pos.angle);
-        
         /*
+        ESP_LOGI(LOGGER_TAG, "Current angle: %lf", current_pos.angle);        
         printf(">Heading_error:%f\n", heading_error);
         printf(">Réponse_angle:%f\n", steer_cmd);
         */
