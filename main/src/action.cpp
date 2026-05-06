@@ -27,10 +27,7 @@ static bool obstacle_check() {
         ESP_LOGE(LOGGER_TAG, "Obstacle check failed");
         return false;
     }
-    if(dist < OBSTACLE_STOP_DISTANCE) {
-        return true;
-    }
-    return false;
+    return dist < OBSTACLE_STOP_DISTANCE ? true : false; 
 }
 
 static void dance() {
