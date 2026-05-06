@@ -7,6 +7,7 @@ enum class PamiAction {
     WAIT,
     NEXT_STEP,
     MOVING,
+    DANCE,
     END
 };
 #else
@@ -16,6 +17,7 @@ enum class PamiAction {
     MOVING,
     TAKE,
     RELEASE,
+    DANCE,
     END
 };
 #endif

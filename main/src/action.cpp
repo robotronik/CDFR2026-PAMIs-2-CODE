@@ -7,8 +7,17 @@
 #include <freertos/task.h>
 
 static const char* LOGGER_TAG = "Action"; 
-static constexpr float OBSTACLE_STOP_DISTANCE = 50.0f; // in mm
+
+namespace { 
+    constexpr TickType_t SERVO_DELAY = pdMS_TO_TICKS(500); // in ms
+    constexpr TickType_t FINAL_PHASE_TIME = pdMS_TO_TICKS(85000); // in ms
+    constexpr TickType_t MATCH_END_TIME = pdMS_TO_TICKS(200000); // in ms
+    constexpr float OBSTACLE_STOP_DISTANCE = 50.0f; // in mm
+}
+
 Map waypoint_map;
+
+/* === Helpers === */
 
 // Check for obstacle using ultrasonic sensor; returns true if there is an obstacle
 static bool obstacle_check() {
@@ -24,76 +33,16 @@ static bool obstacle_check() {
     return false;
 }
 
-#ifndef NINJA
-/* -----------------------------
- * GENERIC PAMI ACTION
- * -----------------------------
-*/
-
-bool action_state() {
-    static PamiAction state = PamiAction::BEGIN;
-    static PamiAction next_state;
-    static bool stopped = false;
-    static TickType_t action_start_tick = 0;
-    static constexpr TickType_t ACTION_DELAY = pdMS_TO_TICKS(1000);
-    static coords_t next_coords;
-
-    switch (state) {
-        case PamiAction::BEGIN: {
-            // Initialize pami action resources here when needed.
-
-            // Start the 85s timer
-            action_start_tick = xTaskGetTickCount();
-            state = PamiAction::WAIT;
-            break;
-        }
-        case PamiAction::WAIT:{
-            // Wait until near the end of the match (85s)
-            if ((xTaskGetTickCount() - action_start_tick) >= ACTION_DELAY) {
-                state = PamiAction::NEXT_STEP;
-            }
-            break;
-        }
-        case PamiAction::NEXT_STEP: {
-            map_object_t next = waypoint_map.get_next_object();
-            next_coords = next.coords;
-            next_state = next.next_action;
-            state = PamiAction::MOVING;
-            break;
-        }
-        case PamiAction::MOVING: {
-            if(!obstacle_check()) {
-                if(stopped) {
-                    stopped = false;
-                    motor_control.start();
-                }
-                motor_control.goTo(next_coords, false);
-            } else {
-                stopped = true;
-                motor_control.stop();
-            } 
-            if(motor_control.target_reached()) {
-                state = next_state;
-            }
-            break;
-        }
-        case PamiAction::END: {
-            // Finalize pami action resources here when needed.
-            return true;
-        }
-    }
-    return false;
+static void dance() {
+    servo_1.write_angle(0);
+    vTaskDelay(SERVO_DELAY);
+    
+    servo_1.write_angle(60);
+    vTaskDelay(SERVO_DELAY);
 }
 
-#else
-/* -----------------------------
- * NINJA ACTIONS
- * -----------------------------
- */
+#if defined(NINJA) 
 
-static constexpr TickType_t SERVO_DELAY = pdMS_TO_TICKS(500); 
-
-/* Helpers */
 static void take_stock() {
     // state 1: Lower claw
     servo_1.write_angle(0);
@@ -122,6 +71,83 @@ static void release_stock() {
     vTaskDelay(SERVO_DELAY);
 }
 
+#endif
+
+/* === State machines === */
+
+#ifndef NINJA
+/* -----------------------------
+ * GENERIC PAMI ACTION
+ * -----------------------------
+*/
+
+bool action_state() {
+    static PamiAction state = PamiAction::BEGIN;
+    static PamiAction next_state;
+    static bool stopped = false;
+    static TickType_t action_start_tick = 0;
+    static coords_t next_coords;
+
+    switch (state) {
+        case PamiAction::BEGIN: {
+            // Initialize pami action resources here when needed.
+
+            // Start the 85s timer
+            action_start_tick = xTaskGetTickCount();
+            state = PamiAction::WAIT;
+            break;
+        }
+        case PamiAction::WAIT: {
+            // Wait until near the end of the match
+            if ((xTaskGetTickCount() - action_start_tick) >= FINAL_PHASE_TIME) {
+                state = PamiAction::NEXT_STEP;
+            }
+            break;
+        }
+        case PamiAction::NEXT_STEP: {
+            map_object_t next = waypoint_map.get_next_object();
+            next_coords = next.coords;
+            next_state = next.next_action;
+            state = PamiAction::MOVING;
+            break;
+        }
+        case PamiAction::MOVING: {
+            if(!obstacle_check()) {
+                if(stopped) {
+                    stopped = false;
+                    motor_control.start();
+                }
+                motor_control.goTo(next_coords, false);
+            } else {
+                stopped = true;
+                motor_control.stop();
+            } 
+            if(motor_control.target_reached()) {
+                state = next_state;
+            }
+            break;
+        }
+        case PamiAction::DANCE: {
+            dance();
+            if ((xTaskGetTickCount() - action_start_tick) >= MATCH_END_TIME) {
+                state = PamiAction::END;
+            }
+            break;
+        }
+        case PamiAction::END: {
+            // Finalize pami action resources here when needed.
+            return true;
+        }
+    }
+    return false;
+}
+
+#else
+/* -----------------------------
+ * NINJA ACTIONS
+ * -----------------------------
+ */
+
 /*
 Strategy 1: move to stocks, throw them in the nest, put empty nut cases in fridge 
 then push last stock over
@@ -132,6 +158,7 @@ bool action_state() {
     static PamiAction next_state;
     static bool stopped = false;
     static coords_t next_coords;
+    static TickType_t action_start_tick = 0;
 
     switch (state) {
         case PamiAction::BEGIN: {
@@ -179,8 +206,15 @@ bool action_state() {
             state = PamiAction::NEXT_STEP;
             break;
         }
+        case PamiAction::DANCE: {
+            dance();
+            if((xTaskGetTickCount() - action_start_tick) >= MATCH_END_TIME) {
+                state = PamiAction::END;
+            }
+            break;
+        }
         case PamiAction::END: {
-            // Shake servos here 
+            // Finalize ressources here if needed 
             return true;
         }
     }
