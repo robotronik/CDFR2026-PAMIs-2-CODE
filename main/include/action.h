@@ -18,9 +18,6 @@ enum class PamiAction {
     RELEASE,
     END
 };
-
-void take_stock();
-void release_stock();
 #endif
 
 bool action_state();
