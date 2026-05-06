@@ -189,7 +189,7 @@ bool MotorControl::goTo(bool turnEnd) {
         steer_derivative = ((1.0f - ALPHA) * last_steer_derivative) + (ALPHA * steer_derivative);
         last_steer_derivative = steer_derivative; 
 
-        float steer_cmd = (KP_STEER * heading_error + KD_STEER * (heading_error - last_heading_error) / dt_s);
+        float steer_cmd = (KP_STEER * heading_error + KD_STEER * steer_derivative);
         last_heading_error = heading_error;
         if(steer_cmd > previous_steer_cmd + SPEED_STEP) {
             steer_cmd = previous_steer_cmd + SPEED_STEP;
