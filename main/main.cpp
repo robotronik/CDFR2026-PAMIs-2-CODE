@@ -16,7 +16,7 @@
 
 static const char* LOGGER_TAG = "MainFSM";
 static MainFSMState current_state = MainFSMState::INIT;
-Team current_team = Team::YELLOW;
+Team current_team = Team::BLUE;
 static constexpr TickType_t MAIN_LOOP_PERIOD = pdMS_TO_TICKS(10); // 100Hz
 
 MotorControl motor_control;
@@ -73,12 +73,12 @@ void main_fsm() {
             case MainFSMState::IDLE: {
                 ESP_LOGD(LOGGER_TAG, "ESP32 in idle state");
 
-                if(!team_switch.read()) { // Yellow
+                if(!team_switch.read()) { // Blue
                     team_led.set_color(255, 255, 0); 
-                    current_team = Team::YELLOW;
-                } else { // Blue
-                    team_led.set_color(0, 255, 255);
                     current_team = Team::BLUE;
+                } else { // Yellow
+                    team_led.set_color(0, 255, 255);
+                    current_team = Team::YELLOW;
                 }
                 
                 if (pull_switch.read()) {

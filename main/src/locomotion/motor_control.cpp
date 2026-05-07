@@ -41,6 +41,9 @@ namespace {
 
     // Physical tune
     constexpr float LEFT_WHEEL_TUNE = 1.03f;
+
+    // Timeout
+    constexpr int64_t TIMEOUT = 5000000.0f; // in us
 }
 
 
@@ -95,6 +98,7 @@ bool MotorControl::goTo(coords_t new_target, bool turnEnd, bool reverse) {
 
     // Start motion cleanly from this command.
     last_control_us = esp_timer_get_time();
+    begin_us = esp_timer_get_time();
 
     // Perform one step of control immediately
     return goTo(turnEnd);
@@ -127,7 +131,11 @@ bool MotorControl::goTo(bool turnEnd) {
         dt_s = (now_us - last_control_us) / 1000000.0f;
         dt_s = clamp(dt_s, 0.001f, 0.1f);
     }
-    last_control_us = now_us;
+    last_control_us = now_us; 
+
+    if(now_us - begin_us > TIMEOUT) {
+        has_target = false;
+    }
 
     const float dx = target_pos.x - current_pos.x;
     const float dy = target_pos.y - current_pos.y;

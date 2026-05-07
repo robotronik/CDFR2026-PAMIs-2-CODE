@@ -146,9 +146,18 @@ bool action_state() {
             // Initialize ninja action resources here when needed.
 
             // add every point coords
-
-            // waypoint_map.add_object({700.0f, 0.0f, 0.0f}, "point1", PamiAction::NEXT_STEP, false, false, false); 
-
+            waypoint_map.add_object({320.0f, 0.0f * invert, 0.0f * invert}, "point1", PamiAction::NEXT_STEP, false, false, false);
+            waypoint_map.add_object({320.0f, 140.0f * invert, -90.0f * invert}, "point2", PamiAction::NEXT_STEP, false, false, false);
+            waypoint_map.add_object({470.0f, 140.0f * invert, -90.0f * invert}, "point3", PamiAction::NEXT_STEP, false, false, false);
+            waypoint_map.add_object({410.0f, 140.0f * invert, 0.0f * invert}, "point4", PamiAction::NEXT_STEP, false, true, false);
+            waypoint_map.add_object({410.0f, -90.0f * invert, 0.0f * invert}, "point5", PamiAction::CALIBRATE_Y, false, true, false);
+            waypoint_map.add_object({410.0f, -80.0f * invert, 0.0f * invert}, "point6", PamiAction::NEXT_STEP, false, false, false);
+            waypoint_map.add_object({650.0f, -80.0f * invert, 0.0f * invert}, "point7", PamiAction::NEXT_STEP, false, false, false);
+            waypoint_map.add_object({650.0f, 230.0f * invert, 0.0f * invert}, "point8", PamiAction::NEXT_STEP, false, false, false);
+            waypoint_map.add_object({155.0f, 0.0f * invert, 0.0f * invert}, "point9", PamiAction::NEXT_STEP, false, false, false);
+            waypoint_map.add_object({155.0f, 30.0f * invert, 0.0f * invert}, "point10", PamiAction::NEXT_STEP, false, false, false);
+            waypoint_map.add_object({155.0f, -50.0f * invert, -65.0f * invert}, "point11", PamiAction::END, false, false, false);
+            
             // move in square 
             /*
             waypoint_map.add_object({200.0f, 0.0f, 0.0f}, "point1", PamiAction::NEXT_STEP, false, false, false); 
@@ -157,6 +166,8 @@ bool action_state() {
             waypoint_map.add_object({0.0f, 0.0f, 0.0f}, "point4", PamiAction::BEGIN, false, false, false);
             */ 
 
+            // old strat
+            /*
             waypoint_map.add_object({155.0f, 0.0f * invert, -90.0f}, "point1", PamiAction::NEXT_STEP, false, false, false);
             waypoint_map.add_object({155.0f, 150.0f * invert, 0.0f}, "point2", PamiAction::NEXT_STEP, false, false, false);
             waypoint_map.add_object({155.0f, 120.0f * invert, 0.0f}, "point3", PamiAction::NEXT_STEP, false, true, false);
@@ -175,11 +186,7 @@ bool action_state() {
             waypoint_map.add_object({155.0f, -90.0f * invert, 0.0f}, "point16", PamiAction::CALIBRATE_Y, false, true, false);
             waypoint_map.add_object({155.0f, -50.0f * invert, -65.0f * invert}, "point17", PamiAction::NEXT_STEP, false, false, false);
             waypoint_map.add_object({415.0f, 70.0f, -20.0f * invert}, "point18", PamiAction::END, false, false, false);
-
-            /*
-            waypoint_map.add_object({0.0f, 0.0f, 180.0f}, "point1", PamiAction::NEXT_STEP);
-            waypoint_map.add_object({0.0f, 0.0f, 0.0f}, "point2", PamiAction::BEGIN);
-            */
+            */ 
 
             state = PamiAction::NEXT_STEP;
             break;
@@ -215,13 +222,15 @@ bool action_state() {
             current_pos.x = 30.0f;
             current_pos.angle = 90.0f * invert;
             motor_control.set_coords(current_pos);
+            state = PamiAction::NEXT_STEP;
             break;
         }
         case PamiAction::CALIBRATE_Y: {
             coords_t current_pos = motor_control.get_coords();
-            current_pos.y = 30.0f;
+            current_pos.y = -110.0f;
             current_pos.angle = 0.0f;
             motor_control.set_coords(current_pos);
+            state = PamiAction::NEXT_STEP;
             break;
         }
         case PamiAction::DANCE: {

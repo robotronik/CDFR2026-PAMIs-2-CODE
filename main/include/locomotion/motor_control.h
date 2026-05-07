@@ -23,6 +23,7 @@ class MotorControl {
         bool turn_end;
         bool is_reversed;
         int64_t last_control_us;
+        int64_t begin_us;
         
         // Store last error for derivative corrector
         float last_rot_error = 0.0f;
