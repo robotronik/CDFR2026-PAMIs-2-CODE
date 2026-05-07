@@ -79,6 +79,10 @@ bool MotorControl::goTo(coords_t new_target, bool turnEnd, bool reverse) {
     turn_end = turnEnd;
     is_reversed = reverse;
 
+    previous_lin_cmd = 0.0f;
+    previous_rot_cmd = 0.0f;
+    previous_steer_cmd = 0.0f;
+
     // Start motion cleanly from this command.
     last_control_us = esp_timer_get_time();
 

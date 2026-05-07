@@ -81,7 +81,7 @@ void main_fsm() {
                     current_team = Team::BLUE;
                 }
                 
-                if (pull_switch.read()){
+                if (pull_switch.read()) {
                     ESP_LOGI(LOGGER_TAG, "Pull switch activated, transitioning to active state");
                     current_state = MainFSMState::ACTIVE;
                     status_led.set(false); 
