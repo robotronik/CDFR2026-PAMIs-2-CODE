@@ -23,7 +23,7 @@ class Map {
     
     public:
         void add_object(map_object_t obj);
-        void add_object(coords_t object_coords, std::string name, PamiAction next_action, bool turnEnd, bool reverse);
+        void add_object(coords_t object_coords, std::string name, PamiAction next_action, bool turnEnd, bool reverse, bool detect);
         void remove_object(map_object_t obj);
         void remove_object(std::string name);
         map_object_t find_object_by_name(std::string name);

@@ -39,7 +39,7 @@ map_object_t Map::find_object_by_name(std::string name) {
         if(object.name == name) {
             return object;
         }
-    }    map_object_t result;
+    }   
     return {};
 }
 
