@@ -21,6 +21,7 @@ Map waypoint_map;
 
 // Check for obstacle using ultrasonic sensor; returns true if there is an obstacle
 static bool obstacle_check() {
+    /*
     uint32_t dist;
     esp_err_t ret = ultrasonic.read_distance_mm(dist);
     if(ret != ESP_OK) {
@@ -28,6 +29,8 @@ static bool obstacle_check() {
         return false;
     }
     return dist < OBSTACLE_STOP_DISTANCE ? true : false; 
+    */
+    return false;
 }
 
 static void dance() {
@@ -155,7 +158,7 @@ bool action_state() {
     static PamiAction next_state;
     static bool stopped = false;
     static coords_t next_coords;
-    static bool next_flags[3];
+    static bool next_flags[2];
     static TickType_t action_start_tick = 0;
 
     switch (state) {
@@ -163,10 +166,39 @@ bool action_state() {
             // Initialize ninja action resources here when needed.
 
             // add every point coords
-            waypoint_map.add_object({200.0f, 0.0f, 0.0f}, "point1", PamiAction::NEXT_STEP, false, true, false); 
-            waypoint_map.add_object({200.0f, 200.0f, 0.0f}, "point2", PamiAction::NEXT_STEP, false, true, false); 
-            waypoint_map.add_object({0.0f, 200.0f, 0.0f}, "point3", PamiAction::NEXT_STEP, false, true, false);
-            waypoint_map.add_object({0.0f, 0.0f, 0.0f}, "point4", PamiAction::BEGIN, false, true, false);
+
+            waypoint_map.add_object({700.0f, 0.0f, 0.0f}, "point1", PamiAction::NEXT_STEP, false, false, false); 
+
+            // move in square 
+            /*
+            waypoint_map.add_object({200.0f, 0.0f, 0.0f}, "point1", PamiAction::NEXT_STEP, false, false, false); 
+            waypoint_map.add_object({200.0f, 200.0f, 0.0f}, "point2", PamiAction::NEXT_STEP, false, false, false); 
+            waypoint_map.add_object({0.0f, 200.0f, 0.0f}, "point3", PamiAction::NEXT_STEP, false, false, false);
+            waypoint_map.add_object({0.0f, 0.0f, 0.0f}, "point4", PamiAction::BEGIN, false, false, false);
+            */
+
+            /*
+            motor_control.set_coords({30.0f, 110.0f, -90.0f});
+
+            waypoint_map.add_object({185.0f, 110.0f, 0.0f}, "point1", PamiAction::NEXT_STEP, false, false, false);
+            waypoint_map.add_object({185.0f, 260.0f, 0.0f}, "point2", PamiAction::NEXT_STEP, false, false, false);
+            waypoint_map.add_object({185.0f, 230.0f, -90.0f}, "point3", PamiAction::NEXT_STEP, false, true, false);
+            waypoint_map.add_object({500.0f, 230.0f, 0.0f}, "point4", PamiAction::NEXT_STEP, false, false, false);
+            waypoint_map.add_object({470.0f, 230.0f, 0.0f}, "point5", PamiAction::NEXT_STEP, false, true, false);
+            waypoint_map.add_object({470.0f, 30.0f, 0.0f}, "point6", PamiAction::NEXT_STEP, false, true, false);
+            waypoint_map.add_object({470.0f, 60.0f, -90.0f}, "point7", PamiAction::NEXT_STEP, false, false, false);
+            waypoint_map.add_object({700.0f, 60.0f, 0.0f}, "point8", PamiAction::NEXT_STEP, false, false, false);
+            waypoint_map.add_object({700.0f, 370.0f, 0.0f}, "point9", PamiAction::NEXT_STEP, false, false, false);
+            waypoint_map.add_object({700.0f, 200.0f, 90.0f}, "point10", PamiAction::NEXT_STEP, false, true, false);
+            waypoint_map.add_object({30.0f, 110.0f, 90.0f}, "point11", PamiAction::NEXT_STEP, false, false, false);
+            waypoint_map.add_object({185.0f, 200.0f, 0.0f}, "point12", PamiAction::NEXT_STEP, false, true, false);
+            waypoint_map.add_object({185.0f, 30.0f, 0.0f}, "point13", PamiAction::NEXT_STEP, false, true, false);
+            waypoint_map.add_object({185.0f, 270.0f, 0.0f}, "point14", PamiAction::NEXT_STEP, false, false, false);
+            waypoint_map.add_object({185.0f, 370.0f, 0.0f}, "point15", PamiAction::NEXT_STEP, false, false, false);
+            waypoint_map.add_object({185.0f, 30.0f, 0.0f}, "point16", PamiAction::NEXT_STEP, false, true, false);
+            waypoint_map.add_object({185.0f, 60.0f, -65.0f}, "point17", PamiAction::NEXT_STEP, false, false, false);
+            waypoint_map.add_object({445.0f, 180.0f, -20.0f}, "point18", PamiAction::NEXT_STEP, false, false, false);
+            */
 
             /*
             waypoint_map.add_object({0.0f, 0.0f, 180.0f}, "point1", PamiAction::NEXT_STEP);
@@ -178,21 +210,21 @@ bool action_state() {
         }
         case PamiAction::NEXT_STEP: {
             map_object_t next = waypoint_map.get_next_object();
+            motor_control.goTo(next_coords, next_flags[0], next_flags[1]);
             next_coords = next.coords;
-            next_flags[0] = next.turnEnd;
-            next_flags[1] = next.reverse;
-            next_flags[2] = next.detect;
+            next_flags[0] = next.turnEnd; 
+            next_flags[1] = next.detect;
             next_state = next.next_action;
             state = PamiAction::MOVING;
             break;
         }
         case PamiAction::MOVING: {
-            if(!obstacle_check() || !next_flags[2]) {
+            if(!obstacle_check() || !next_flags[1]) {
                 if(stopped) {
                     stopped = false;
                     motor_control.start();
                 }
-                motor_control.goTo(next_coords, next_flags[0], next_flags[1]);
+                motor_control.goTo(next_flags[0]);
             } else {
                 stopped = true;
                 motor_control.stop();

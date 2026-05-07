@@ -7,27 +7,27 @@ static const char* LOGGER_TAG = "MotorControl";
 
 #define RAD_TO_DEG (180.0f / M_PI)
 #define DEG_TO_RAD (M_PI / 180.0f)
-#define WHEEL_DIST 92.5f // distance between the two wheels in mm
+#define WHEEL_DIST 88.5f // distance between the two wheels in mm
 #define WHEEL_RADIUS 12.0f // radius of the wheels in mm
 #define WHEEL_CIRCUMFERENCE (2.0f * M_PI * WHEEL_RADIUS) // circumference of the wheels in mm
 
 namespace {
     constexpr float POSITION_EPS_MM = 5.0f;
     constexpr float APPROACH_EPS_MM = 80.0f; 
-    constexpr float HEADING_ALIGN_EPS_DEG = 8.0f;
-    constexpr float FINAL_ANGLE_EPS_DEG = 1.5f;
+    constexpr float HEADING_ALIGN_EPS_DEG = 7.0f;
+    constexpr float FINAL_ANGLE_EPS_DEG = 1.0f;
 
     // Rotation PD-control with angular error in deg and output in motor speed percentage.
     constexpr float KP_ROT = 1.2f; // % per deg
-    constexpr float KD_ROT = 0.01f;
+    constexpr float KD_ROT = 0.005f;
 
     // Translation PD-control with distance error in mm and output in motor speed percentage.
-    constexpr float KP_LIN = 1.0f;  // % per mm
-    constexpr float KD_LIN = 0.02f;
+    constexpr float KP_LIN = 1.05f;  // % per mm
+    constexpr float KD_LIN = 0.01f;
 
     // Heading correction while translating (heading error in deg).
-    constexpr float KP_STEER = 3.0f; // % per deg
-    constexpr float KD_STEER = 0.02f;
+    constexpr float KP_STEER = 2.0f; // % per deg
+    constexpr float KD_STEER = 0.05f;
 
     // Derivative low pass filter 
     constexpr float ALPHA = 0.2f;
@@ -38,6 +38,9 @@ namespace {
     // Speed values are motor command percentages in [-100, 100].
     constexpr float MAX_TRANSLATION_SPEED = 60.0f;
     constexpr float MAX_ROTATION_SPEED = 30.0f;
+
+    // Physical tune
+    constexpr float LEFT_WHEEL_TUNE = 1.03f;
 }
 
 
@@ -52,6 +55,13 @@ MotorControl::MotorControl()
     last_control_us(0) 
 {
    ESP_LOGD(LOGGER_TAG, "init");
+}
+
+// Should only be used to set initial coords
+void MotorControl::set_coords(coords_t coords) {
+    current_pos.x = coords.x;
+    current_pos.y = coords.y;
+    current_pos.angle = coords.angle;
 }
 
 bool MotorControl::goTo(coords_t new_target, bool turnEnd, bool reverse) {
@@ -78,7 +88,7 @@ bool MotorControl::goTo(coords_t new_target, bool turnEnd, bool reverse) {
 
 bool MotorControl::goTo(bool turnEnd) {
     float delta_right = motor_a.get_delta() * WHEEL_CIRCUMFERENCE;
-    float delta_left = motor_b.get_delta() * WHEEL_CIRCUMFERENCE;
+    float delta_left = motor_b.get_delta() * WHEEL_CIRCUMFERENCE * LEFT_WHEEL_TUNE;
 
     float heading_rad = current_pos.angle * DEG_TO_RAD;
     float delta_heading_rad = (delta_right - delta_left) / WHEEL_DIST;
