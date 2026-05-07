@@ -36,8 +36,8 @@ namespace {
     constexpr float SPEED_STEP = 0.5f;
 
     // Speed values are motor command percentages in [-100, 100].
-    constexpr float MAX_TRANSLATION_SPEED = 60.0f;
-    constexpr float MAX_ROTATION_SPEED = 30.0f;
+    constexpr float MAX_TRANSLATION_SPEED = 80.0f;
+    constexpr float MAX_ROTATION_SPEED = 40.0f;
 
     // Physical tune
     constexpr float LEFT_WHEEL_TUNE = 1.03f;
@@ -62,6 +62,16 @@ void MotorControl::set_coords(coords_t coords) {
     current_pos.x = coords.x;
     current_pos.y = coords.y;
     current_pos.angle = coords.angle;
+}
+
+coords_t MotorControl::get_coords() {
+    return current_pos;
+}
+
+void MotorControl::update_coords(coords_t coords) {
+    current_pos.x += coords.x;
+    current_pos.y += coords.y;
+    current_pos.angle += coords.angle;
 }
 
 bool MotorControl::goTo(coords_t new_target, bool turnEnd, bool reverse) {

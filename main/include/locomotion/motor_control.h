@@ -44,15 +44,17 @@ class MotorControl {
 
     public:
         MotorControl();
-            void set_coords(coords_t coords);
-            // Set a new destination and return true if already at destination.
-            // If `turnEnd` is true, the controller will also orient to the
-            // target angle before reporting arrival.
-            bool goTo(coords_t dest, bool turnEnd = false, bool reverse = false);
-            // Periodic call to advance motion toward the last-set target.
-            // If `turnEnd` is true, the controller will finish only after final rotation.
-            // Returns true when the destination has been reached.
-            bool goTo(bool turnEnd = false);
+        void set_coords(coords_t coords);
+        coords_t get_coords();
+        void update_coords(coords_t coords);
+        // Set a new destination and return true if already at destination.
+        // If `turnEnd` is true, the controller will also orient to the
+        // target angle before reporting arrival.
+        bool goTo(coords_t dest, bool turnEnd = false, bool reverse = false);
+        // Periodic call to advance motion toward the last-set target.
+        // If `turnEnd` is true, the controller will finish only after final rotation.
+        // Returns true when the destination has been reached.
+        bool goTo(bool turnEnd = false);
         void start();
         void stop();
         bool target_reached();

@@ -14,9 +14,9 @@ enum class PamiAction {
 enum class PamiAction {
     BEGIN,
     NEXT_STEP,
-    MOVING,
-    TAKE,
-    RELEASE,
+    MOVING, 
+    CALIBRATE_X,
+    CALIBRATE_Y,
     DANCE,
     END
 };
