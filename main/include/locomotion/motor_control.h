@@ -21,6 +21,7 @@ class MotorControl {
         bool has_target;
         bool doing_final_rotation;
         bool turn_end;
+        bool is_reversed;
         int64_t last_control_us;
         
         // Store last error for derivative corrector
@@ -46,7 +47,7 @@ class MotorControl {
             // Set a new destination and return true if already at destination.
             // If `turnEnd` is true, the controller will also orient to the
             // target angle before reporting arrival.
-            bool goTo(coords_t dest, bool turnEnd = false);
+            bool goTo(coords_t dest, bool turnEnd = false, bool reverse = false);
             // Periodic call to advance motion toward the last-set target.
             // If `turnEnd` is true, the controller will finish only after final rotation.
             // Returns true when the destination has been reached.

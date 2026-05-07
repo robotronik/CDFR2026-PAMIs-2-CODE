@@ -12,11 +12,14 @@ void Map::add_object(map_object_t object) {
     objects.push_back(object);
 }
 
-void Map::add_object(coords_t object_coords, std::string name, PamiAction next_action) {
+void Map::add_object(coords_t object_coords, std::string name, PamiAction next_action, bool turnEnd, bool reverse, bool detect) {
     map_object_t new_object = { 
         .name = name,
         .coords = object_coords,
-        .next_action = next_action
+        .next_action = next_action,
+        .turnEnd = turnEnd,
+        .reverse = reverse, 
+        .detect = detect
     };
     objects.push_back(new_object);    
 }

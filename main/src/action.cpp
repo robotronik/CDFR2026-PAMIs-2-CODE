@@ -155,6 +155,7 @@ bool action_state() {
     static PamiAction next_state;
     static bool stopped = false;
     static coords_t next_coords;
+    static bool next_flags[3];
     static TickType_t action_start_tick = 0;
 
     switch (state) {
@@ -162,10 +163,10 @@ bool action_state() {
             // Initialize ninja action resources here when needed.
 
             // add every point coords
-            waypoint_map.add_object({200.0f, 0.0f, 0.0f}, "point1", PamiAction::NEXT_STEP); 
-            waypoint_map.add_object({200.0f, 200.0f, 0.0f}, "point2", PamiAction::NEXT_STEP);; 
-            waypoint_map.add_object({0.0f, 200.0f, 0.0f}, "point3", PamiAction::NEXT_STEP);
-            waypoint_map.add_object({0.0f, 0.0f, 0.0f}, "point4", PamiAction::BEGIN);
+            waypoint_map.add_object({200.0f, 0.0f, 0.0f}, "point1", PamiAction::NEXT_STEP, false, true); 
+            waypoint_map.add_object({200.0f, 200.0f, 0.0f}, "point2", PamiAction::NEXT_STEP, false, true); 
+            waypoint_map.add_object({0.0f, 200.0f, 0.0f}, "point3", PamiAction::NEXT_STEP, false, true);
+            waypoint_map.add_object({0.0f, 0.0f, 0.0f}, "point4", PamiAction::BEGIN, false, true);
 
             /*
             waypoint_map.add_object({0.0f, 0.0f, 180.0f}, "point1", PamiAction::NEXT_STEP);
@@ -178,17 +179,20 @@ bool action_state() {
         case PamiAction::NEXT_STEP: {
             map_object_t next = waypoint_map.get_next_object();
             next_coords = next.coords;
+            next_flags[0] = next.turnEnd;
+            next_flags[1] = next.reverse;
+            next_flags[2] = next.detect;
             next_state = next.next_action;
             state = PamiAction::MOVING;
             break;
         }
         case PamiAction::MOVING: {
-            if(!obstacle_check()) {
+            if(!obstacle_check() || !next_flags[2]) {
                 if(stopped) {
                     stopped = false;
                     motor_control.start();
                 }
-                motor_control.goTo(next_coords, false);
+                motor_control.goTo(next_coords, next_flags[0], next_flags[1]);
             } else {
                 stopped = true;
                 motor_control.stop();

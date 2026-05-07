@@ -7,8 +7,8 @@ static const char* LOGGER_TAG = "MotorControl";
 
 #define RAD_TO_DEG (180.0f / M_PI)
 #define DEG_TO_RAD (M_PI / 180.0f)
-#define WHEEL_DIST 92.5f // distance between the two wheels in mm, TODO: measure this
-#define WHEEL_RADIUS 12.0f // radius of the wheels in mm, TODO: measure this
+#define WHEEL_DIST 92.5f // distance between the two wheels in mm
+#define WHEEL_RADIUS 12.0f // radius of the wheels in mm
 #define WHEEL_CIRCUMFERENCE (2.0f * M_PI * WHEEL_RADIUS) // circumference of the wheels in mm
 
 namespace {
@@ -54,7 +54,7 @@ MotorControl::MotorControl()
    ESP_LOGD(LOGGER_TAG, "init");
 }
 
-bool MotorControl::goTo(coords_t new_target, bool turnEnd) {
+bool MotorControl::goTo(coords_t new_target, bool turnEnd, bool reverse) {
     ESP_LOGD(LOGGER_TAG, "Received goTo order, coords: x: %f, y: %f, angle: %f, turnEnd: %d", new_target.x, new_target.y, new_target.angle, (int)turnEnd);
 
     // set and normalize
@@ -67,6 +67,7 @@ bool MotorControl::goTo(coords_t new_target, bool turnEnd) {
     has_target = true;
     doing_final_rotation = false;
     turn_end = turnEnd;
+    is_reversed = reverse;
 
     // Start motion cleanly from this command.
     last_control_us = esp_timer_get_time();
@@ -108,7 +109,12 @@ bool MotorControl::goTo(bool turnEnd) {
     const float dy = target_pos.y - current_pos.y;
     const float distance_error = sqrtf((dx * dx) + (dy * dy));
 
-    const float angle_to_point = atan2f(dy, dx) * RAD_TO_DEG;
+    float angle_to_point = atan2f(dy, dx) * RAD_TO_DEG;
+
+    // Point our back towards the target instead of our front if we want to go backwards
+    if(is_reversed) {
+        angle_to_point = normalize_angle_deg(angle_to_point + 180.0f);
+    }
 
     // Do not modify our approach angle if our robot is close enough
     if(!(distance_error <= APPROACH_EPS_MM)) {
@@ -206,8 +212,10 @@ bool MotorControl::goTo(bool turnEnd) {
         steer_cmd = clamp(steer_cmd, -MAX_ROTATION_SPEED, MAX_ROTATION_SPEED);
         previous_steer_cmd = steer_cmd;
 
-        left_speed = lin_cmd - steer_cmd;
-        right_speed = lin_cmd + steer_cmd;
+        float applied_lin_cmd = is_reversed ? -lin_cmd : lin_cmd;
+
+        left_speed = applied_lin_cmd - steer_cmd;
+        right_speed = applied_lin_cmd + steer_cmd;
 
         // Debug angle outputs
         /*
