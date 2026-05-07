@@ -7,7 +7,7 @@ static const char* LOGGER_TAG = "MotorControl";
 
 #define RAD_TO_DEG (180.0f / M_PI)
 #define DEG_TO_RAD (M_PI / 180.0f)
-#define WHEEL_DIST 88.0f // distance between the two wheels in mm, TODO: measure this
+#define WHEEL_DIST 92.5f // distance between the two wheels in mm, TODO: measure this
 #define WHEEL_RADIUS 12.0f // radius of the wheels in mm, TODO: measure this
 #define WHEEL_CIRCUMFERENCE (2.0f * M_PI * WHEEL_RADIUS) // circumference of the wheels in mm
 
@@ -23,11 +23,11 @@ namespace {
 
     // Translation PD-control with distance error in mm and output in motor speed percentage.
     constexpr float KP_LIN = 1.0f;  // % per mm
-    constexpr float KD_LIN = 0.01f;
+    constexpr float KD_LIN = 0.02f;
 
     // Heading correction while translating (heading error in deg).
     constexpr float KP_STEER = 3.0f; // % per deg
-    constexpr float KD_STEER = 0.01f;
+    constexpr float KD_STEER = 0.02f;
 
     // Derivative low pass filter 
     constexpr float ALPHA = 0.2f;

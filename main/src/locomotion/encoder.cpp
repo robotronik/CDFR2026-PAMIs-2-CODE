@@ -2,8 +2,6 @@
 #include "pins.h"
 #include "locomotion/encoder.h"
 
-// TODO: count method and glitch filter?
-
 Encoder::Encoder(gpio_num_t pin_a, gpio_num_t pin_b) {
     /* Unit setup */
     pcnt_unit_config_t unit_config = {
@@ -29,6 +27,14 @@ Encoder::Encoder(gpio_num_t pin_a, gpio_num_t pin_b) {
     };
     channel_a = NULL;
     channel_b = NULL;
+
+    /* Glitch filter setup */
+    pcnt_glitch_filter_config_t filter_config = {
+        .max_glitch_ns = 500,
+    };
+    
+    ESP_ERROR_CHECK(pcnt_unit_set_glitch_filter(pcnt_unit, &filter_config));
+
     ESP_ERROR_CHECK(pcnt_new_channel(pcnt_unit, &chan_config_a, &channel_a)); 
     ESP_ERROR_CHECK(pcnt_new_channel(pcnt_unit, &chan_config_b, &channel_b));
 

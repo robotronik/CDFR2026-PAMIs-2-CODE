@@ -161,11 +161,16 @@ bool action_state() {
         case PamiAction::BEGIN: {
             // Initialize ninja action resources here when needed.
 
-            // add every point coords 
+            // add every point coords
             waypoint_map.add_object({200.0f, 0.0f, 0.0f}, "point1", PamiAction::NEXT_STEP); 
             waypoint_map.add_object({200.0f, 200.0f, 0.0f}, "point2", PamiAction::NEXT_STEP);; 
             waypoint_map.add_object({0.0f, 200.0f, 0.0f}, "point3", PamiAction::NEXT_STEP);
             waypoint_map.add_object({0.0f, 0.0f, 0.0f}, "point4", PamiAction::BEGIN);
+
+            /*
+            waypoint_map.add_object({0.0f, 0.0f, 180.0f}, "point1", PamiAction::NEXT_STEP);
+            waypoint_map.add_object({0.0f, 0.0f, 0.0f}, "point2", PamiAction::BEGIN);
+            */
 
             state = PamiAction::NEXT_STEP;
             break;
