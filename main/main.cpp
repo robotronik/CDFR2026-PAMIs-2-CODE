@@ -38,6 +38,7 @@ void main_fsm() {
                 ESP_LOGD(LOGGER_TAG, "ESP32 in init state"); 
                 status_led.toggle(); 
                 team_led.set_color(0, 255, 0);
+                motor_control.INVERTED_LEFT_MOTOR = (N_PAMI > 0) ;
                 motor_control.start();
                 esp_err_t err = servo_1.attach();
                 if (err != ESP_OK) {

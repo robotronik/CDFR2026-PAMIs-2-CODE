@@ -5,20 +5,17 @@
 enum class PamiAction {
     BEGIN,
     WAIT,
-    NEXT_STEP,
+    SETUP,
     MOVING,
-    DANCE,
-    END
+    DANCE
 };
 #else
 enum class PamiAction {
     BEGIN,
-    NEXT_STEP,
     MOVING, 
     CALIBRATE_X,
     CALIBRATE_Y,
-    DANCE,
-    END
+    DANCE
 };
 #endif
 

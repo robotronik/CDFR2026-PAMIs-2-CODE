@@ -47,7 +47,6 @@ class MotorControl {
         MotorControl();
         void set_coords(coords_t coords);
         coords_t get_coords();
-        void update_coords(coords_t coords);
         // Set a new destination and return true if already at destination.
         // If `turnEnd` is true, the controller will also orient to the
         // target angle before reporting arrival.
@@ -58,5 +57,6 @@ class MotorControl {
         bool goTo(bool turnEnd = false);
         void start();
         void stop();
-        bool target_reached();
+
+        bool INVERTED_LEFT_MOTOR;
 };

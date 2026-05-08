@@ -40,7 +40,11 @@ namespace {
     constexpr float MAX_ROTATION_SPEED = 40.0f;
 
     // Physical tune
+    #ifdef NINJA
     constexpr float LEFT_WHEEL_TUNE = 1.03f;
+    #else
+    constexpr float LEFT_WHEEL_TUNE = 1.0f;
+    #endif
 
     // Timeout
     constexpr int64_t TIMEOUT = 5000000.0f; // in us
@@ -55,7 +59,8 @@ MotorControl::MotorControl()
     has_target(false),
     doing_final_rotation(false),
     turn_end(false),
-    last_control_us(0) 
+    last_control_us(0),
+    INVERTED_LEFT_MOTOR(false)
 {
    ESP_LOGD(LOGGER_TAG, "init");
 }
@@ -69,12 +74,6 @@ void MotorControl::set_coords(coords_t coords) {
 
 coords_t MotorControl::get_coords() {
     return current_pos;
-}
-
-void MotorControl::update_coords(coords_t coords) {
-    current_pos.x += coords.x;
-    current_pos.y += coords.y;
-    current_pos.angle += coords.angle;
 }
 
 bool MotorControl::goTo(coords_t new_target, bool turnEnd, bool reverse) {
@@ -107,6 +106,7 @@ bool MotorControl::goTo(coords_t new_target, bool turnEnd, bool reverse) {
 bool MotorControl::goTo(bool turnEnd) {
     float delta_right = motor_a.get_delta() * WHEEL_CIRCUMFERENCE;
     float delta_left = motor_b.get_delta() * WHEEL_CIRCUMFERENCE * LEFT_WHEEL_TUNE;
+    if (INVERTED_LEFT_MOTOR) delta_left *= -1;
 
     float heading_rad = current_pos.angle * DEG_TO_RAD;
     float delta_heading_rad = (delta_right - delta_left) / WHEEL_DIST;
@@ -257,6 +257,8 @@ bool MotorControl::goTo(bool turnEnd) {
         */
     }
 
+    if (INVERTED_LEFT_MOTOR) left_speed *= -1;
+
     motor_a.set_speed_pid(right_speed);
     motor_b.set_speed_pid(left_speed);
 
@@ -275,8 +277,4 @@ void MotorControl::stop() {
     motor_b.stop();
 
     ESP_LOGD(LOGGER_TAG, "stop");
-}
-
-bool MotorControl::target_reached() {
-    return !has_target;
 }

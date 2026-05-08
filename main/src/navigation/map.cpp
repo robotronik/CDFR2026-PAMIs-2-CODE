@@ -13,6 +13,11 @@ void Map::add_object(map_object_t object) {
 }
 
 void Map::add_object(coords_t object_coords, std::string name, PamiAction next_action, bool turnEnd, bool reverse, bool detect) {
+    coords_t colored_coords = object_coords;
+    if (current_team == Team::BLUE){
+        colored_coords.y *= -1;
+        colored_coords.angle *= -1;
+    }
     map_object_t new_object = { 
         .name = name,
         .coords = object_coords,
