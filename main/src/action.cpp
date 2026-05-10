@@ -67,15 +67,15 @@ static void dance() {
 #if N_PAMI == 1
 #define OFFSET_START 0
 #elif N_PAMI == 2
-#define OFFSET_START 2000 
+#define OFFSET_START 1000 
 #elif N_PAMI == 3
-#define OFFSET_START 4000 
+#define OFFSET_START 2000 
 #elif N_PAMI == 4
-#define OFFSET_START 6000 
+#define OFFSET_START 3000 
 #elif N_PAMI == 5
-#define OFFSET_START 8000 
+#define OFFSET_START 4000 
 #elif N_PAMI == 6
-#define OFFSET_START 10000 
+#define OFFSET_START 5000 
 #endif
 
 #if defined(NINJA) 
@@ -145,14 +145,14 @@ bool action_state() {
         case PamiAction::WAIT: {
             motor_control.goTo();
             // Wait until near the end of the match
-            if ((xTaskGetTickCount() - action_start_tick) >= FINAL_PHASE_TIME + OFFSET_START) {
+            if ((xTaskGetTickCount() - action_start_tick) >= FINAL_PHASE_TIME + pdMS_TO_TICKS(OFFSET_START)) {
                 has_task = false;
                 state = PamiAction::MOVING;
             }
             break;
         }
         case PamiAction::MOVING: {
-            if ((xTaskGetTickCount() - action_start_tick) >= 100000) {
+            if ((xTaskGetTickCount() - action_start_tick) >= pdMS_TO_TICKS(100000)) {
                 state = PamiAction::DANCE;
                 ESP_LOGI(LOGGER_TAG, "Final phase reached, switching to DANCE state");
                 break;
