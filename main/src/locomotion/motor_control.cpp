@@ -273,8 +273,8 @@ void MotorControl::start() {
 }
 
 void MotorControl::stop() {
-    motor_a.stop();
-    motor_b.stop();
+    motor_a.set_speed(0.0f);
+    motor_b.set_speed(0.0f);
 
     ESP_LOGD(LOGGER_TAG, "stop");
 }
