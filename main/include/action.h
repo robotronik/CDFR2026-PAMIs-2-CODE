@@ -14,7 +14,8 @@ enum class PamiAction {
     BEGIN,
     MOVING, 
     TAKE,
-    RELEASE,
+    PUSH,
+    FOLD,
     DANCE
 };
 #endif

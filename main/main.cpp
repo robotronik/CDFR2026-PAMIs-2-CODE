@@ -68,6 +68,8 @@ void main_fsm() {
                     vTaskDelay(500);
                 }
 
+                servo_1.write_angle(180);
+                servo_2.write_angle(180);
                 current_state = MainFSMState::IDLE;
                 break;
             }

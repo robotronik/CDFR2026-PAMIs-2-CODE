@@ -69,9 +69,9 @@ esp_err_t Servo::write_angle(uint8_t angle_deg) {
 
 	if (angle_deg > 180) {
 		angle_deg = 180;
-	}
+	} 
 
-	uint32_t pulse_us = SERVO_MIN_US + ((SERVO_MAX_US - SERVO_MIN_US) * angle_deg) / 180;
+	uint32_t pulse_us = SERVO_MIN_US + (((SERVO_MAX_US - SERVO_MIN_US) * angle_deg) + 90) / 180;
 	return write_us(pulse_us);
 }
 
