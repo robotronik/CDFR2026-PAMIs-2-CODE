@@ -68,6 +68,9 @@ void main_fsm() {
                     vTaskDelay(500);
                 }
 
+                team_led.set_color(255, 255, 0); 
+                current_team = Team::BLUE;
+
                 servo_1.write_angle(180);
                 servo_2.write_angle(180);
                 current_state = MainFSMState::IDLE;
@@ -90,7 +93,7 @@ void main_fsm() {
                 if (!pull_switch.read()) {
                     ESP_LOGI(LOGGER_TAG, "Pull switch activated, transitioning to active state");
                     current_state = MainFSMState::ACTIVE;
-                    status_led.set(false); 
+                    team_led.set_color(0, 255, 0);
                 }
                 break;
             }
