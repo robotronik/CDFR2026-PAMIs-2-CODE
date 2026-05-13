@@ -14,7 +14,6 @@
     #include "wireless/web_server.h"
 #endif
 
-│ └╴  main.cpp
 static const char* LOGGER_TAG = "MainFSM";
 static MainFSMState current_state = MainFSMState::INIT;
 Team current_team = Team::BLUE;
