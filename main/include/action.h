@@ -13,8 +13,8 @@ enum class PamiAction {
 enum class PamiAction {
     BEGIN,
     MOVING, 
-    CALIBRATE_X,
-    CALIBRATE_Y,
+    TAKE,
+    RELEASE,
     DANCE
 };
 #endif

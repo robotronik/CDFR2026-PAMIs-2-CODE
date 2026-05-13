@@ -81,6 +81,13 @@ static void dance() {
 #if defined(NINJA) 
 
 // Ninja specific servo helpers here
+void take() {
+    servo_1.write_angle(90);
+}
+
+void release() {
+    servo_1.write_angle(0);
+}
 
 #endif
 
@@ -294,21 +301,15 @@ bool action_state() {
             }
             break;
         }
-        case PamiAction::CALIBRATE_X: {
-            coords_t current_pos = motor_control.get_coords();
-            current_pos.x = 30.0f;
-            current_pos.angle = 90.0f;
-            motor_control.set_coords(current_pos);
-            has_task = false;
+        case PamiAction::TAKE:  {
+            motor_control.goTo();
+            take();
             state = PamiAction::MOVING;
             break;
-        }
-        case PamiAction::CALIBRATE_Y: {
-            coords_t current_pos = motor_control.get_coords();
-            current_pos.y = -110.0f;
-            current_pos.angle = 0.0f;
-            motor_control.set_coords(current_pos);
-            has_task = false;
+        } 
+        case PamiAction::RELEASE: {
+            motor_control.goTo();
+            release();
             state = PamiAction::MOVING;
             break;
         }
