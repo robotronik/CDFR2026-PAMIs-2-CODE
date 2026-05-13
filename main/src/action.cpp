@@ -11,7 +11,8 @@ static const char* LOGGER_TAG = "Action";
 namespace { 
     constexpr TickType_t SERVO_DELAY = pdMS_TO_TICKS(500); // in ms
     constexpr TickType_t FINAL_PHASE_TIME = pdMS_TO_TICKS(10000); // in ms 85 secondes à remettre
-    constexpr float OBSTACLE_STOP_DISTANCE = 100.0f; // in mm
+    constexpr float OBSTACLE_STOP_DISTANCE = 200.0f; // in mm
+    constexpr TickType_t NINJA_WAIT_TIME = pdMS_TO_TICKS(1000);
 }
 
 Map waypoint_map;
@@ -173,7 +174,7 @@ bool action_state() {
                 ESP_LOGI(LOGGER_TAG, "Fetching next task");
                 // Get new task
                 current_task = waypoint_map.get_next_object();
-                if(current_task.name.empty()) waypoint_map.add_object({155.0f, -50.0f, -65.0f}, "point12", PamiAction::DANCE, false, false, false); {
+                if(current_task.name.empty()) {
                     ESP_LOGW(LOGGER_TAG, "No more tasks available");
                     state = PamiAction::DANCE;
                     break;
@@ -224,30 +225,34 @@ bool action_state() {
     static PamiAction state = PamiAction::BEGIN;
     static map_object_t current_task;
     static bool has_task = false;
+    static TickType_t wait_start_tick = 0; 
+    static bool is_waiting = false;
 
     switch (state) {
         case PamiAction::BEGIN: { 
             // Initialize ninja action resources here when needed.
 
             // add every point coords
-            // waypoint_map.add_object({1000.0f, 0.0f, 0.0f}, "point1", PamiAction::MOVING, false, false, false);
+            waypoint_map.add_object({200.0f, 0.0f, 0.0f}, "point1", PamiAction::MOVING, false, false, true);
 
-            waypoint_map.add_object({320.0f, 0.0f, 0.0f}, "point1", PamiAction::TAKE, false, false, false);
-            waypoint_map.add_object({320.0f, 140.0f, -90.0f}, "point2", PamiAction::FOLD, false, false, false);
-            waypoint_map.add_object({470.0f, 140.0f, -90.0f}, "point3", PamiAction::PUSH, false, false, false);
-            waypoint_map.add_object({410.0f, 140.0f, 0.0f}, "point4", PamiAction::MOVING, false, true, false);
-            waypoint_map.add_object({410.0f, -90.0f, 0.0f}, "point5", PamiAction::MOVING, false, false, false);
-            waypoint_map.add_object({410.0f, -80.0f, 0.0f}, "point6", PamiAction::MOVING, false, false, false);
-            waypoint_map.add_object({650.0f, -80.0f, 0.0f}, "point7", PamiAction::MOVING, false, false, false);
-            waypoint_map.add_object({650.0f, 230.0f, 0.0f}, "point8", PamiAction::MOVING, false, false, false);
-            waypoint_map.add_object({155.0f, 0.0f, 0.0f}, "point9", PamiAction::MOVING, false, false, false);
+            /*
+            waypoint_map.add_object({320.0f, 0.0f, 0.0f}, "point1", PamiAction::MOVING, false, false, false);
+            waypoint_map.add_object({320.0f, 140.0f, -90.0f}, "TURN", PamiAction::MOVING, true, false, false);
+            waypoint_map.add_object({320.0f, 140.0f, -90.0f}, "point2", PamiAction::PUSH, false, false, false); 
+            waypoint_map.add_object({470.0f, 140.0f, -90.0f}, "point3", PamiAction::MOVING, false, false, false);
+            waypoint_map.add_object({410.0f, 140.0f, 180.0f}, "point4", PamiAction::FOLD, false, true, false);
+            waypoint_map.add_object({410.0f, -20.0f, 180.0f}, "point5", PamiAction::MOVING, false, false, false);
+            waypoint_map.add_object({410.0f, 0.0f, -90.0f}, "point6", PamiAction::MOVING, false, false, false);
+            waypoint_map.add_object({650.0f, -60.0f, 0.0f}, "point7", PamiAction::PUSH, true, false, false);
+            waypoint_map.add_object({650.0f, 230.0f, 0.0f}, "point8", PamiAction::FOLD, false, false, false);
+            waypoint_map.add_object({155.0f, 0.0f, 0.0f}, "point9", PamiAction::PUSH, true, false, false);
             waypoint_map.add_object({155.0f, 30.0f, 0.0f}, "point10", PamiAction::TAKE, false, false, false);
-            waypoint_map.add_object({155.0f, -50.0f, -65.0f}, "point11", PamiAction::PUSH, true, false, false); 
-            waypoint_map.add_object({530.0f, 30.0f, 0.0f}, "point12", PamiAction::MOVING, false, false, false);
-            waypoint_map.add_object({530.0f, 30.0f, -20.0f}, "point13", PamiAction::FOLD, true, false, false);
-            waypoint_map.add_object({155.0f, 0.0f, 0.0f}, "point14", PamiAction::PUSH, false, false, false);
-            waypoint_map.add_object({155.0f, 230.0f, 0.0f}, "point15", PamiAction::FOLD, false, false, false);
-            waypoint_map.add_object({530.0f, 230.0f, 0.0f}, "point16", PamiAction::DANCE, true, false, false);
+            waypoint_map.add_object({155.0f, -50.0f, -65.0f}, "point11", PamiAction::PUSH, true, true, false);  
+            waypoint_map.add_object({530.0f, 30.0f, -20.0f}, "point12", PamiAction::FOLD, true, false, false);
+            waypoint_map.add_object({155.0f, 0.0f, 0.0f}, "point13", PamiAction::PUSH, true, false, false);
+            waypoint_map.add_object({155.0f, 230.0f, 0.0f}, "point14", PamiAction::FOLD, false, false, false);
+            waypoint_map.add_object({530.0f, 230.0f, 0.0f}, "point15", PamiAction::DANCE, true, false, false);
+            */
 
             /*
             waypoint_map.add_object({500.0f, 0.0f, 0.0f}, "point1", PamiAction::MOVING, false, false, false);
@@ -336,9 +341,20 @@ bool action_state() {
             state = PamiAction::MOVING;
             break;
         }
+        case PamiAction::WAIT: {
+            motor_control.goTo();
+            if(!is_waiting) {
+                wait_start_tick = xTaskGetTickCount();
+                is_waiting = true;
+            } else if(xTaskGetTickCount() - wait_start_tick > NINJA_WAIT_TIME) {
+                is_waiting = false;
+                state = PamiAction::MOVING;
+            }
+            break;
+        }
         case PamiAction::DANCE: {
             motor_control.goTo();
-            // dance();
+            dance();
             break;
         }
     }

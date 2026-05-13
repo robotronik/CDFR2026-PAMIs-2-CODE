@@ -14,9 +14,5 @@ Switch::Switch(gpio_num_t pin) : pin(pin) {
 }
 
 int Switch::read() {
-    if(gpio_get_level(pin) == 0) {
-        vTaskDelay(pdMS_TO_TICKS(50));
-        return (gpio_get_level(pin) == 0);
-    }
     return gpio_get_level(pin) ? 0 : 1;
 }

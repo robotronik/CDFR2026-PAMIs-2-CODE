@@ -49,7 +49,7 @@ TeamLed::TeamLed(gpio_num_t pin) : Led(pin) {
 }
 
 void TeamLed::set_color(int r, int g, int b) {
-    ESP_LOGD(LOGGER_TAG, "Set color to %d %d %d", r, g, b);
+    ESP_LOGI(LOGGER_TAG, "Set color to %d %d %d", r, g, b);
     led_strip_set_pixel(strip_handle, 0, r, g, b);
     led_strip_refresh(strip_handle);
 }

@@ -161,6 +161,10 @@ bool MotorControl::goTo(bool turnEnd) {
     bool do_rotation_only = at_target_position || (fabsf(heading_error) > HEADING_ALIGN_EPS_DEG);
     if(at_target_position && !doing_final_rotation) {
         doing_final_rotation = true;
+
+        previous_rot_cmd = 0.0f;
+        last_rot_error = final_angle_error;
+        last_rot_derivative = 0.0f;
     }
 
     // Arrival logic: if not required to turn at the end, accept position-only arrival.
