@@ -18,9 +18,9 @@ static const char* LOGGER_TAG = "MotorControl";
 
 namespace {
     constexpr float POSITION_EPS_MM = 5.0f;
-    constexpr float APPROACH_EPS_MM = 80.0f; 
+    constexpr float APPROACH_EPS_MM = 30.0f; 
     constexpr float HEADING_ALIGN_EPS_DEG = 7.0f;
-    constexpr float FINAL_ANGLE_EPS_DEG = 10.0f;
+    constexpr float FINAL_ANGLE_EPS_DEG = 7.0f;
 
     // Rotation PD-control with angular error in deg and output in motor speed percentage.
     constexpr float KP_ROT = 1.2f; // % per deg
@@ -52,7 +52,7 @@ namespace {
     #endif
 
     // Timeout
-    constexpr int64_t TIMEOUT = 5000000.0f; // in us
+    constexpr int64_t TIMEOUT = 4000000.0f; // in us
 }
 
 
@@ -139,7 +139,12 @@ bool MotorControl::goTo(bool turnEnd) {
     last_control_us = now_us; 
 
     if(now_us - begin_us > TIMEOUT) {
+        ESP_LOGI(LOGGER_TAG, "timed out");
         has_target = false;
+        doing_final_rotation = false;
+        motor_a.set_speed_pid(0.0f);
+        motor_b.set_speed_pid(0.0f);
+        return true;
     }
 
     const float dx = target_pos.x - current_pos.x;

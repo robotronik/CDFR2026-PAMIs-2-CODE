@@ -17,6 +17,8 @@ enum class PamiAction {
     PUSH,
     FOLD,
     WAIT,
+    CALIBRATE_X,
+    CALIBRATE_Y,
     DANCE
 };
 #endif
