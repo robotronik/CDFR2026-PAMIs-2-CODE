@@ -236,19 +236,19 @@ bool action_state() {
             // waypoint_map.add_object({100.0f, 0.0f, 180.0f}, "point1", PamiAction::MOVING, true, false, false);
 
             waypoint_map.add_object({320.0f, 0.0f, 0.0f}, "point1", PamiAction::MOVING, false, false, false);
-            waypoint_map.add_object({320.0f, 140.0f, 0.0f}, "TURN", PamiAction::PUSH, true, false, false);  
-            waypoint_map.add_object({470.0f, 140.0f, 0.0f}, "point3", PamiAction::MOVING, false, false, false);
-            waypoint_map.add_object({410.0f, 140.0f, 0.0f}, "point4", PamiAction::FOLD, false, true, false);
+            waypoint_map.add_object({320.0f, -140.0f, 0.0f}, "TURN", PamiAction::PUSH, true, false, false);  
+            waypoint_map.add_object({470.0f, -140.0f, 0.0f}, "point3", PamiAction::MOVING, false, false, false);
+            waypoint_map.add_object({410.0f, -140.0f, 0.0f}, "point4", PamiAction::FOLD, false, true, false);
             // waypoint_map.add_object({410.0f, -20.0f, 180.0f}, "point5", PamiAction::MOVING, false, false, false);
             waypoint_map.add_object({410.0f, 0.0f, 0.0f}, "point6", PamiAction::MOVING, false, false, false);
-            waypoint_map.add_object({650.0f, -50.0f, 90.0f}, "point7", PamiAction::PUSH, true, false, false);
-            waypoint_map.add_object({630.0f, 235.0f, 90.0f}, "point8", PamiAction::FOLD, true, false, false);
-            waypoint_map.add_object({630.0f, -105.0f, 0.0f}, "point9", PamiAction::CALIBRATE_Y, false, false, false);
-            waypoint_map.add_object({630.0f, -20.0f, 0.0f}, "aodpasapf", PamiAction::MOVING, false, true, false);
-            waypoint_map.add_object({-100.0f, -20.0f, 0.0f}, "point10", PamiAction::CALIBRATE_X, false, false, false);
-            waypoint_map.add_object({165.0f, -20.0f, 90.0f}, "point11", PamiAction::PUSH, true, true, false);
-            waypoint_map.add_object({165.0f, 235.0f, 90.0f}, "pointhgdf", PamiAction::FOLD, true, false, false);
-            waypoint_map.add_object({530.0f, 245.0f, 90.0f}, "point14", PamiAction::DANCE, true, false, false);
+            waypoint_map.add_object({650.0f, 50.0f, -90.0f}, "point7", PamiAction::PUSH, true, false, false);
+            waypoint_map.add_object({630.0f, -235.0f, -90.0f}, "point8", PamiAction::FOLD, true, false, false);
+            waypoint_map.add_object({630.0f, 105.0f, 0.0f}, "point9", PamiAction::CALIBRATE_Y, false, false, false);
+            waypoint_map.add_object({630.0f, 20.0f, 0.0f}, "aodpasapf", PamiAction::MOVING, false, true, false);
+            waypoint_map.add_object({-100.0f, 20.0f, 0.0f}, "point10", PamiAction::CALIBRATE_X, false, false, false);
+            waypoint_map.add_object({165.0f, 20.0f, -90.0f}, "point11", PamiAction::PUSH, true, true, false);
+            waypoint_map.add_object({165.0f, -235.0f, -90.0f}, "pointhgdf", PamiAction::FOLD, true, false, false);
+            waypoint_map.add_object({530.0f, -245.0f, -90.0f}, "point14", PamiAction::DANCE, true, false, false);
 
             /*waypoint_map.add_object({165.0f, 60.0f, 90.0f}, "point10asdasf", PamiAction::TAKE, false, false, false);
             waypoint_map.add_object({165.0f, -50.0f, 90.0f}, "point10", PamiAction::MOVING, false, true, false);
@@ -365,14 +365,22 @@ bool action_state() {
         case PamiAction::CALIBRATE_X: {
             motor_control.reset_pid();
             coords_t pos = motor_control.get_coords();
-            motor_control.set_coords({65.0f, pos.y, 180.0f});
+            if(current_team == Team::BLUE) {
+                motor_control.set_coords({65.0f, -pos.y,-180.0f});
+            } else {
+                motor_control.set_coords({65.0f, pos.y, 180.0f});
+            }
             state = PamiAction::MOVING;
             break;
         }
         case PamiAction::CALIBRATE_Y: {
             motor_control.reset_pid();
             coords_t pos = motor_control.get_coords();
-            motor_control.set_coords({pos.x, -45.0f, -90.0f});
+            if(current_team == Team::BLUE) {
+                motor_control.set_coords({pos.x, 45.0f, 90.0f});
+            } else {
+                motor_control.set_coords({pos.x, -45.0f, -90.0f});
+            }
             state = PamiAction::MOVING;
             break;
         }

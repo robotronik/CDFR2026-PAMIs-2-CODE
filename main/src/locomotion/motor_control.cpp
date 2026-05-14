@@ -19,7 +19,7 @@ static const char* LOGGER_TAG = "MotorControl";
 namespace {
     constexpr float POSITION_EPS_MM = 5.0f;
     constexpr float APPROACH_EPS_MM = 30.0f; 
-    constexpr float HEADING_ALIGN_EPS_DEG = 5.0f;
+    constexpr float HEADING_ALIGN_EPS_DEG = 7.0f;
     constexpr float FINAL_ANGLE_EPS_DEG = 7.0f;
 
     // Rotation PD-control with angular error in deg and output in motor speed percentage.
