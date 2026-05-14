@@ -8,7 +8,11 @@ static const char* LOGGER_TAG = "MotorControl";
 
 #define RAD_TO_DEG (180.0f / M_PI)
 #define DEG_TO_RAD (M_PI / 180.0f)
-#define WHEEL_DIST 88.5f // distance between the two wheels in mm
+#if 0 == N_PAMI
+#define WHEEL_DIST 88.5f // distance between the two wheels in mm, for the NINJA
+#else
+#define WHEEL_DIST 57.0f // distance between the two wheels in mm
+#endif
 #define WHEEL_RADIUS 12.0f // radius of the wheels in mm
 #define WHEEL_CIRCUMFERENCE (2.0f * M_PI * WHEEL_RADIUS) // circumference of the wheels in mm
 

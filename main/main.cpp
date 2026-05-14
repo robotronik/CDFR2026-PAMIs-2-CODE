@@ -98,6 +98,7 @@ void main_fsm() {
                 break;
             }
             case MainFSMState::ACTIVE: {
+                dance();
                 // Update position
                 ESP_LOGD(LOGGER_TAG, "ESP32 in active state");
                 if (action_state()) {

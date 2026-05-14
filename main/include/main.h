@@ -14,10 +14,10 @@
 // Pami 0 is ninja, so we can disable all the code related to it for now. 
 // This will make it easier to test the rest of the code
 #ifndef N_PAMI
-#define N_PAMI 0
+#define N_PAMI 1
 #endif
 
-#if N_PAMI == 0
+#if 0 == N_PAMI
 #define NINJA
 #endif
 

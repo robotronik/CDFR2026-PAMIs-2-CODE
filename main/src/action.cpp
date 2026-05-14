@@ -30,7 +30,7 @@ static bool obstacle_check() {
     return dist < OBSTACLE_STOP_DISTANCE;
 }
 
-static void dance() {
+void dance() {
     // Non-blocking dance sequence: call repeatedly, it advances on elapsed time.
     static uint8_t step = 0;
     static TickType_t step_start = 0;
@@ -123,7 +123,7 @@ bool action_state() {
         case PamiAction::SETUP: {
             switch (N_PAMI) {
                 case 1: {
-                    waypoint_map.add_object({1523.0f, 0.0f, 0.0f}, "PAMI1_1", PamiAction::DANCE, false, false, true);
+                    waypoint_map.add_object({1553.0f, 0.0f, 0.0f}, "PAMI1_1", PamiAction::DANCE, true, false, true);
                     break;
                 }
                 case 2: {
@@ -203,7 +203,6 @@ bool action_state() {
         }
         case PamiAction::DANCE: {
             motor_control.goTo();
-            dance();
             break;
         }
     }
@@ -233,9 +232,9 @@ bool action_state() {
             // Initialize ninja action resources here when needed.
 
             // add every point coords
-            waypoint_map.add_object({200.0f, 0.0f, 0.0f}, "point1", PamiAction::MOVING, false, false, true);
+            // waypoint_map.add_object({200.0f, 0.0f, 0.0f}, "point1", PamiAction::MOVING, false, false, true);
 
-            /*
+
             waypoint_map.add_object({320.0f, 0.0f, 0.0f}, "point1", PamiAction::MOVING, false, false, false);
             waypoint_map.add_object({320.0f, 140.0f, -90.0f}, "TURN", PamiAction::MOVING, true, false, false);
             waypoint_map.add_object({320.0f, 140.0f, -90.0f}, "point2", PamiAction::PUSH, false, false, false); 
@@ -252,7 +251,6 @@ bool action_state() {
             waypoint_map.add_object({155.0f, 0.0f, 0.0f}, "point13", PamiAction::PUSH, true, false, false);
             waypoint_map.add_object({155.0f, 230.0f, 0.0f}, "point14", PamiAction::FOLD, false, false, false);
             waypoint_map.add_object({530.0f, 230.0f, 0.0f}, "point15", PamiAction::DANCE, true, false, false);
-            */
 
             /*
             waypoint_map.add_object({500.0f, 0.0f, 0.0f}, "point1", PamiAction::MOVING, false, false, false);

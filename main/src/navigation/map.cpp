@@ -20,7 +20,7 @@ void Map::add_object(coords_t object_coords, std::string name, PamiAction next_a
     }
     map_object_t new_object = { 
         .name = name,
-        .coords = object_coords,
+        .coords = colored_coords,
         .next_action = next_action,
         .turnEnd = turnEnd,
         .reverse = reverse, 

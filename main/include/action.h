@@ -22,5 +22,6 @@ enum class PamiAction {
 #endif
 
 bool action_state();
+void dance();
 
 
