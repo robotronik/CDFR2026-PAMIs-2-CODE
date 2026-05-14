@@ -28,6 +28,7 @@ class Motor {
         void set_speed_pid(float percentage);
         void set_speed(float percentage);
         float get_delta();
+        void reset_pid();
 
         float filtered_speed = 0.0f; // out of 100%
 };

@@ -19,7 +19,7 @@ static const char* LOGGER_TAG = "MotorControl";
 namespace {
     constexpr float POSITION_EPS_MM = 5.0f;
     constexpr float APPROACH_EPS_MM = 30.0f; 
-    constexpr float HEADING_ALIGN_EPS_DEG = 7.0f;
+    constexpr float HEADING_ALIGN_EPS_DEG = 5.0f;
     constexpr float FINAL_ANGLE_EPS_DEG = 7.0f;
 
     // Rotation PD-control with angular error in deg and output in motor speed percentage.
@@ -41,7 +41,7 @@ namespace {
     constexpr float SPEED_STEP = 0.5f;
 
     // Speed values are motor command percentages in [-100, 100].
-    constexpr float MAX_TRANSLATION_SPEED = 80.0f;
+    constexpr float MAX_TRANSLATION_SPEED = 70.0f;
     constexpr float MAX_ROTATION_SPEED = 40.0f;
 
     // Physical tune
@@ -289,4 +289,9 @@ void MotorControl::stop() {
     motor_b.set_speed(0.0f);
 
     ESP_LOGD(LOGGER_TAG, "stop");
+}
+
+void MotorControl::reset_pid() {
+    motor_a.reset_pid();
+    motor_b.reset_pid();
 }

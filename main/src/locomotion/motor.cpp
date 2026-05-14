@@ -125,5 +125,12 @@ void Motor::stop() {
     encoder.stop();
 }
 
+void Motor::reset_pid() {
+    integral_error = 0.0f;
+    prev_error = 0.0f;
+    last_control_us = 0;
+    filtered_speed = 0.0f;
+}
+
     
 

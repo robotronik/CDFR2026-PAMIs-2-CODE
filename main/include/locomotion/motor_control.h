@@ -57,6 +57,7 @@ class MotorControl {
         bool goTo(bool turnEnd = false);
         void start();
         void stop();
+        void reset_pid();
 
         bool INVERTED_LEFT_MOTOR;
 };
