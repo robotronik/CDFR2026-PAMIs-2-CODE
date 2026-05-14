@@ -10,7 +10,7 @@ static const char* LOGGER_TAG = "Action";
 
 namespace { 
     constexpr TickType_t SERVO_DELAY = pdMS_TO_TICKS(500); // in ms
-    constexpr TickType_t FINAL_PHASE_TIME = pdMS_TO_TICKS(2000); // in ms 85 secondes à remettre
+    constexpr TickType_t FINAL_PHASE_TIME = pdMS_TO_TICKS(85000); // in ms 85 secondes à remettre
     constexpr float OBSTACLE_STOP_DISTANCE = 150.0f; // in mm
     constexpr TickType_t NINJA_WAIT_TIME = pdMS_TO_TICKS(1000);
 }
