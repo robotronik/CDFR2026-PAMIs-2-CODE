@@ -20,7 +20,7 @@ namespace {
     constexpr float POSITION_EPS_MM = 5.0f;
     constexpr float APPROACH_EPS_MM = 80.0f; 
     constexpr float HEADING_ALIGN_EPS_DEG = 7.0f;
-    constexpr float FINAL_ANGLE_EPS_DEG = 1.0f;
+    constexpr float FINAL_ANGLE_EPS_DEG = 10.0f;
 
     // Rotation PD-control with angular error in deg and output in motor speed percentage.
     constexpr float KP_ROT = 1.2f; // % per deg
@@ -155,7 +155,7 @@ bool MotorControl::goTo(bool turnEnd) {
 
     // Do not modify our approach angle if our robot is close enough
     if(!(distance_error <= APPROACH_EPS_MM)) {
-        approach_angle = angle_to_point;
+        approach_angle = normalize_angle_deg(angle_to_point);
     }
 
     const float heading_error = normalize_angle_deg(approach_angle - current_pos.angle);
@@ -205,6 +205,7 @@ bool MotorControl::goTo(bool turnEnd) {
         last_rot_error = rot_error;
 
         float rot_cmd = (KP_ROT * rot_error + KD_ROT * rot_derivative);
+        
         /* Speed ramp */
         if(rot_cmd > previous_rot_cmd + SPEED_STEP) {
             rot_cmd = previous_rot_cmd + SPEED_STEP;
@@ -257,14 +258,11 @@ bool MotorControl::goTo(bool turnEnd) {
 
         left_speed = applied_lin_cmd - steer_cmd;
         right_speed = applied_lin_cmd + steer_cmd;
-
-        // Debug angle outputs
-        /*
-        ESP_LOGI(LOGGER_TAG, "Current angle: %lf", current_pos.angle);        
-        printf(">Heading_error:%f\n", heading_error);
-        printf(">Réponse_angle:%f\n", steer_cmd);
-        */
     }
+
+    // Debug angle outputs
+    ESP_LOGI(LOGGER_TAG, "Current angle: %lf", current_pos.angle);        
+    printf(">Final__angle_error:%f\n", final_angle_error); 
 
     if (INVERTED_LEFT_MOTOR) left_speed *= -1;
 
