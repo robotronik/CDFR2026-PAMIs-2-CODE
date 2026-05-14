@@ -124,6 +124,14 @@ bool action_state() {
             switch (N_PAMI) {
                 case 1: {
                     waypoint_map.add_object({1530.0f, 0.0f, 0.0f}, "PAMI1_1", PamiAction::DANCE, false, false, true);
+                 
+                    /*
+                    waypoint_map.add_object({0.0f, 0.0f, 0.0f}, "point4", PamiAction::MOVING, false, false, false);
+                    waypoint_map.add_object({0.0f, 200.0f, 0.0f}, "point3", PamiAction::MOVING, false, false, false);
+                    waypoint_map.add_object({200.0f, 200.0f, 0.0f}, "point2", PamiAction::MOVING, false, false, false); 
+                    waypoint_map.add_object({200.0f, 0.0f, 0.0f}, "point1", PamiAction::SETUP, false, false, false); 
+                    */
+
                     break;
                 }
                 case 2: {
@@ -136,17 +144,17 @@ bool action_state() {
                 }
                 case 4: {
                     waypoint_map.add_object({1400.0f, 0.0f, 0.0f}, "PAMI4_1", PamiAction::MOVING, false, false, true);
-                    waypoint_map.add_object({1830.0f, 1010.0f, 0.0f}, "PAMI4_2", PamiAction::DANCE, false, false, true);
+                    waypoint_map.add_object({1830.0f, -1010.0f, 0.0f}, "PAMI4_2", PamiAction::DANCE, false, false, true);
                     break;
                 }
                 case 5: {
                     waypoint_map.add_object({700.0f, 0.0f, 0.0f}, "PAMI5_1", PamiAction::MOVING, false, false, true);
-                    waypoint_map.add_object({1100.0f, 930.0f, 0.0f}, "PAMI5_2", PamiAction::DANCE, false, false, true);
+                    waypoint_map.add_object({1100.0f, -930.0f, 0.0f}, "PAMI5_2", PamiAction::DANCE, false, false, true);
                     break;
                 }
                 case 6: {
                     waypoint_map.add_object({500.0f, 0.0f, 0.0f}, "PAMI6_1", PamiAction::MOVING, false, false, true);
-                    waypoint_map.add_object({500.0f, 585.0f, 0.0f}, "PAMI6_2", PamiAction::DANCE, false, false, true);
+                    waypoint_map.add_object({500.0f, -585.0f, 0.0f}, "PAMI6_2", PamiAction::DANCE, false, false, true);
                     break;
                 }
 
@@ -250,26 +258,6 @@ bool action_state() {
             waypoint_map.add_object({165.0f, -235.0f, -90.0f}, "pointhgdf", PamiAction::FOLD, true, false, false);
             waypoint_map.add_object({530.0f, -245.0f, -90.0f}, "point14", PamiAction::DANCE, true, false, false);
 
-            /*waypoint_map.add_object({165.0f, 60.0f, 90.0f}, "point10asdasf", PamiAction::TAKE, false, false, false);
-            waypoint_map.add_object({165.0f, -50.0f, 90.0f}, "point10", PamiAction::MOVING, false, true, false);
-            waypoint_map.add_object({575.0f, 135.0f, 90.0f}, "point12", PamiAction::PUSH, false, false, false);
-            waypoint_map.add_object({575.0f, 135.0f, -10.0f}, "point13", PamiAction::FOLD, false, true, false);
-            waypoint_map.add_object({530.0f, 230.0f, 90.0f}, "point14", PamiAction::DANCE, true, false, false);*/
-
-            /*
-            waypoint_map.add_object({155.0f, -50.0f, 65.0f}, "point11", PamiAction::PUSH, true, true, false);  
-            waypoint_map.add_object({530.0f, 30.0f, 20.0f}, "point12", PamiAction::FOLD, true, false, false);
-            waypoint_map.add_object({155.0f, 0.0f, 90.0f}, "point13", PamiAction::PUSH, true, false, false);
-            waypoint_map.add_object({155.0f, 230.0f, 0.0f}, "point14", PamiAction::FOLD, false, false, false);
-            waypoint_map.add_object({530.0f, 230.0f, 0.0f}, "point15", PamiAction::DANCE, true, false, false);
-            */
-
-            /*
-            waypoint_map.add_object({500.0f, 0.0f, 0.0f}, "point1", PamiAction::MOVING, false, false, false);
-            waypoint_map.add_object({500.0f, 0.0f, 0.0f}, "point2", PamiAction::PUSH, false, false, false);
-            waypoint_map.add_object({1000.0f, 0.0f, 0.0f}, "point3", PamiAction::TAKE, false, false, false);
-            */
-
             // move in square 
             /*
             waypoint_map.add_object({0.0f, 0.0f, 0.0f}, "point4", PamiAction::BEGIN, false, false, false);
@@ -277,28 +265,6 @@ bool action_state() {
             waypoint_map.add_object({200.0f, 200.0f, 0.0f}, "point2", PamiAction::MOVING, false, false, false); 
             waypoint_map.add_object({200.0f, 0.0f, 0.0f}, "point1", PamiAction::MOVING, false, false, false); 
             */
-
-            // old strat
-            /*
-            waypoint_map.add_object({155.0f, 0.0f, -90.0f}, "point1", PamiAction::MOVING, false, false, false);
-            waypoint_map.add_object({155.0f, 150.0f, 0.0f}, "point2", PamiAction::MOVING, false, false, false);
-            waypoint_map.add_object({155.0f, 120.0f, 0.0f}, "point3", PamiAction::MOVING, false, true, false);
-            waypoint_map.add_object({470.0f, 100.0f, -90.0f}, "point4", PamiAction::MOVING, false, false, false); 
-            waypoint_map.add_object({440.0f, 100.0f, 0.0f}, "point5", PamiAction::MOVING, false, true, false);
-            waypoint_map.add_object({440.0f, -90.0f, 0.0f}, "point6", PamiAction::CALIBRATE_Y, false, true, false);
-            waypoint_map.add_object({440.0f, -50.0f, -90.0f}, "point7", PamiAction::MOVING, false, false, false);
-            waypoint_map.add_object({670.0f, -50.0f, 0.0f}, "point8", PamiAction::MOVING, false, false, false);
-            waypoint_map.add_object({670.0f, 260.0f, 0.0f}, "point9", PamiAction::MOVING, false, false, false);
-            waypoint_map.add_object({670.0f, 90.0f, 90.0f}, "point10", PamiAction::MOVING, false, true, false);
-            waypoint_map.add_object({0.0f,   90.0f, 90.0f}, "point11", PamiAction::CALIBRATE_X, false, false, false);
-            waypoint_map.add_object({155.0f, 90.0f, 0.0f}, "point12", PamiAction::MOVING, false, true, false);
-            waypoint_map.add_object({155.0f, -90.0f, 0.0f}, "point13", PamiAction::CALIBRATE_Y, false, true, false);
-            waypoint_map.add_object({155.0f, 160.0f, 0.0f}, "point14", PamiAction::MOVING, false, false, false);
-            waypoint_map.add_object({155.0f, 260.0f, 0.0f}, "point15", PamiAction::MOVING, false, false, false);
-            waypoint_map.add_object({155.0f, -90.0f, 0.0f}, "point16", PamiAction::CALIBRATE_Y, false, true, false);
-            waypoint_map.add_object({155.0f, -50.0f, -65.0f}, "point17", PamiAction::MOVING, false, false, false);
-            waypoint_map.add_object({415.0f, 70.0f, -20.0f}, "point18", PamiAction::END, false, false, false);
-            */ 
 
             has_task = false;
             state = PamiAction::MOVING;
