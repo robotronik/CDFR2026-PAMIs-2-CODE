@@ -10,7 +10,7 @@ static const char* LOGGER_TAG = "Action";
 
 namespace { 
     constexpr TickType_t SERVO_DELAY = pdMS_TO_TICKS(500); // in ms
-    constexpr TickType_t FINAL_PHASE_TIME = pdMS_TO_TICKS(85000); // in ms 85 secondes à remettre
+    constexpr TickType_t FINAL_PHASE_TIME = pdMS_TO_TICKS(2000); // in ms 85 secondes à remettre
     constexpr float OBSTACLE_STOP_DISTANCE = 150.0f; // in mm
     constexpr TickType_t NINJA_WAIT_TIME = pdMS_TO_TICKS(1000);
 }
@@ -123,7 +123,7 @@ bool action_state() {
         case PamiAction::SETUP: {
             switch (N_PAMI) {
                 case 1: {
-                    waypoint_map.add_object({1553.0f, 0.0f, 0.0f}, "PAMI1_1", PamiAction::DANCE, true, false, true);
+                    waypoint_map.add_object({1530.0f, 0.0f, 0.0f}, "PAMI1_1", PamiAction::DANCE, false, false, true);
                     break;
                 }
                 case 2: {
@@ -136,17 +136,17 @@ bool action_state() {
                 }
                 case 4: {
                     waypoint_map.add_object({1400.0f, 0.0f, 0.0f}, "PAMI4_1", PamiAction::MOVING, false, false, true);
-                    waypoint_map.add_object({1830.0f, -1010.0f, 0.0f}, "PAMI4_2", PamiAction::DANCE, false, false, true);
+                    waypoint_map.add_object({1830.0f, 1010.0f, 0.0f}, "PAMI4_2", PamiAction::DANCE, false, false, true);
                     break;
                 }
                 case 5: {
                     waypoint_map.add_object({700.0f, 0.0f, 0.0f}, "PAMI5_1", PamiAction::MOVING, false, false, true);
-                    waypoint_map.add_object({1100.0f, -930.0f, 0.0f}, "PAMI5_2", PamiAction::DANCE, false, false, true);
+                    waypoint_map.add_object({1100.0f, 930.0f, 0.0f}, "PAMI5_2", PamiAction::DANCE, false, false, true);
                     break;
                 }
                 case 6: {
                     waypoint_map.add_object({500.0f, 0.0f, 0.0f}, "PAMI6_1", PamiAction::MOVING, false, false, true);
-                    waypoint_map.add_object({500.0f, -585.0f, 0.0f}, "PAMI6_2", PamiAction::DANCE, false, false, true);
+                    waypoint_map.add_object({500.0f, 585.0f, 0.0f}, "PAMI6_2", PamiAction::DANCE, false, false, true);
                     break;
                 }
 
