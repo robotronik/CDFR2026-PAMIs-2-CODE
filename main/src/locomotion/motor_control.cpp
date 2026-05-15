@@ -46,7 +46,7 @@ namespace {
     
     // Speed values are motor command percentages in [-100, 100].
     constexpr float MAX_TRANSLATION_SPEED = 70.0f;
-    constexpr float MAX_ROTATION_SPEED = 40.0f;
+    constexpr float MAX_ROTATION_SPEED = 30.0f;
 
     constexpr float KP_STEER = 2.0f; // % per deg
     #else
