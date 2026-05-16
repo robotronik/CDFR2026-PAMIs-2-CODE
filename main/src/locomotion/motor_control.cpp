@@ -66,7 +66,7 @@ namespace {
     constexpr float LEFT_WHEEL_TUNE = 1.00f;
     #endif
 
-    constexpr float MAX_TRANSLATION_SPEED = 80.0f;
+    constexpr float MAX_TRANSLATION_SPEED = 60.0f;
     constexpr float MAX_ROTATION_SPEED = 40.0f;
    
     constexpr float KD_STEER = 0.1f;
@@ -319,7 +319,7 @@ bool MotorControl::goTo(bool turnEnd) {
 }
 #else
 bool MotorControl::goTo(bool turnEnd) {
-    float delta = motor_a.get_delta();
+    float delta = motor_b.get_delta();
     current_pos.x += delta; 
 
     if (!has_target) {
@@ -351,9 +351,7 @@ bool MotorControl::goTo(bool turnEnd) {
             ESP_LOGI(LOGGER_TAG, "Target reached (pos) at x: %.1f, y: %.1f, angle: %.1f", current_pos.x, current_pos.y, current_pos.angle);
             return true;
         }
-    }
-
-    float speed = 0.0f;
+    } 
    
     // PD translation only
     
@@ -374,11 +372,11 @@ bool MotorControl::goTo(bool turnEnd) {
     lin_cmd = clamp(lin_cmd, 0.0f, MAX_TRANSLATION_SPEED);
     previous_lin_cmd = lin_cmd;
 
-    float applied_lin_cmd = is_reversed ? -lin_cmd : lin_cmd;
-    speed = applied_lin_cmd; 
+    float applied_lin_cmd = is_reversed ? -lin_cmd : lin_cmd; 
 
-    motor_a.set_speed_pid(speed);
-    motor_b.set_speed_pid(speed);
+    ESP_LOGI(LOGGER_TAG, "%lf", applied_lin_cmd);
+ 
+    motor_b.set_speed_pid(-applied_lin_cmd);
 
     return false;
 }
