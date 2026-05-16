@@ -38,7 +38,7 @@ void main_fsm() {
                 ESP_LOGD(LOGGER_TAG, "ESP32 in init state"); 
                 status_led.toggle(); 
                 team_led.set_color(0, 255, 0);
-                motor_control.INVERTED_LEFT_MOTOR = (N_PAMI > 0) ;
+                // motor_control.INVERTED_LEFT_MOTOR = (N_PAMI > 0) ;
                 motor_control.start();
                 esp_err_t err = servo_1.attach();
                 if (err != ESP_OK) {
@@ -71,8 +71,13 @@ void main_fsm() {
                 team_led.set_color(255, 255, 0); 
                 current_team = Team::BLUE;
 
-                servo_1.write_angle(180);
-                servo_2.write_angle(180);
+                #ifndef NINJA
+                    servo_1.write_angle(0);
+                    servo_2.write_angle(0);
+                #else
+                    servo_1.write_angle(180);
+                    servo_2.write_angle(180);
+                #endif
                 current_state = MainFSMState::IDLE;
                 break;
             }

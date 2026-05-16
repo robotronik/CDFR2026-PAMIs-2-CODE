@@ -9,9 +9,9 @@ static const char* LOGGER_TAG = "MotorControl";
 #define RAD_TO_DEG (180.0f / M_PI)
 #define DEG_TO_RAD (M_PI / 180.0f)
 #if defined(NINJA)
-#define WHEEL_DIST 88.5f // distance between the two wheels in mm, for the NINJA
+#define WHEEL_DIST 84.0f // distance between the two wheels in mm, for the NINJA
 #else
-#define WHEEL_DIST 50.5f // distance between the two wheels in mm
+#define WHEEL_DIST 53.0f // distance between the two wheels in mm
 #endif
 #define WHEEL_RADIUS 12.0f // radius of the wheels in mm
 #define WHEEL_CIRCUMFERENCE (2.0f * M_PI * WHEEL_RADIUS) // circumference of the wheels in mm
@@ -19,22 +19,15 @@ static const char* LOGGER_TAG = "MotorControl";
 namespace {
     constexpr float POSITION_EPS_MM = 5.0f;
     constexpr float APPROACH_EPS_MM = 20.0f; 
-    constexpr float HEADING_ALIGN_EPS_DEG = 10.0f;
-    constexpr float FINAL_ANGLE_EPS_DEG = 10.0f;
-
-    // Rotation PD-control with angular error in deg and output in motor speed percentage.
-    constexpr float KP_ROT = 1.2f; // % per deg
-    constexpr float KD_ROT = 0.005f;
+    constexpr float HEADING_ALIGN_EPS_DEG = 7.0f;
+    constexpr float FINAL_ANGLE_EPS_DEG = 7.0f;
 
     // Translation PD-control with distance error in mm and output in motor speed percentage.
     constexpr float KP_LIN = 1.05f;  // % per mm
     constexpr float KD_LIN = 0.01f;
-
-    // Heading correction while translating (heading error in deg).
-    constexpr float KD_STEER = 0.05f;
-
+    
     // Derivative low pass filter 
-    constexpr float ALPHA = 0.2f;
+    constexpr float ALPHA = 0.7f;
 
     // Ramp
     constexpr float SPEED_STEP = 0.5f;
@@ -42,20 +35,46 @@ namespace {
     // Pami-specific tuning
     #ifdef NINJA
     // Physical tune
-    constexpr float LEFT_WHEEL_TUNE = 1.03f;
+    constexpr float LEFT_WHEEL_TUNE = 1.00f;
     
     // Speed values are motor command percentages in [-100, 100].
     constexpr float MAX_TRANSLATION_SPEED = 70.0f;
-    constexpr float MAX_ROTATION_SPEED = 30.0f;
+    constexpr float MAX_ROTATION_SPEED = 40.0f;
 
+    // Heading correction while translating (heading error in deg).
+    constexpr float KD_STEER = 0.05f;
     constexpr float KP_STEER = 2.0f; // % per deg
+    constexpr float KI_STEER = 0.0f;
+
+    // Rotation PD-control with angular error in deg and output in motor speed percentage.
+    constexpr float KP_ROT = 1.2f; // % per deg
+    constexpr float KD_ROT = 0.005f;
+
     #else
+
+    #if 1 == N_PAMI 
     constexpr float LEFT_WHEEL_TUNE = 1.0f;
-    
+    #elif 2 == N_PAMI
+    constexpr float LEFT_WHEEL_TUNE = 0.98f;
+    #elif 3 == N_PAMI
+    constexpr float LEFT_WHEEL_TUNE = 0.97f;
+    #elif 4 == N_PAMI
+    constexpr float LEFT_WHEEL_TUNE = 0.98f;
+    #elif 5 == N_PAMI 
+    constexpr float LEFT_WHEEL_TUNE = 1.00f;
+    #elif 6 == N_PAMI
+    constexpr float LEFT_WHEEL_TUNE = 1.00f;
+    #endif
+
     constexpr float MAX_TRANSLATION_SPEED = 60.0f;
-    constexpr float MAX_ROTATION_SPEED = 15.0f;
-    
-    constexpr float KP_STEER = 1.2f; // % per deg
+    constexpr float MAX_ROTATION_SPEED = 40.0f;
+   
+    constexpr float KD_STEER = 0.0f;
+    constexpr float KP_STEER = 2.0f; // % per deg
+    constexpr float KI_STEER = 0.0f;
+
+    constexpr float KP_ROT = 1.0f; // % per deg
+    constexpr float KD_ROT = 0.005f;
     #endif
 
     // Timeout
@@ -71,8 +90,8 @@ MotorControl::MotorControl()
     has_target(false),
     doing_final_rotation(false),
     turn_end(false),
-    last_control_us(0),
-    INVERTED_LEFT_MOTOR(false)
+    last_control_us(0)
+    // INVERTED_LEFT_MOTOR(false)
 {
    ESP_LOGD(LOGGER_TAG, "init");
 }
@@ -107,6 +126,8 @@ bool MotorControl::goTo(coords_t new_target, bool turnEnd, bool reverse) {
     previous_rot_cmd = 0.0f;
     previous_steer_cmd = 0.0f;
 
+    steer_integral_error = 0.0f;
+
     // Start motion cleanly from this command.
     last_control_us = esp_timer_get_time();
     begin_us = esp_timer_get_time();
@@ -118,7 +139,7 @@ bool MotorControl::goTo(coords_t new_target, bool turnEnd, bool reverse) {
 bool MotorControl::goTo(bool turnEnd) {
     float delta_right = motor_a.get_delta() * WHEEL_CIRCUMFERENCE;
     float delta_left = motor_b.get_delta() * WHEEL_CIRCUMFERENCE * LEFT_WHEEL_TUNE;
-    if (INVERTED_LEFT_MOTOR) delta_left *= -1;
+    // if (INVERTED_LEFT_MOTOR) delta_left *= -1;
 
     float heading_rad = current_pos.angle * DEG_TO_RAD;
     float delta_heading_rad = (delta_right - delta_left) / WHEEL_DIST;
@@ -145,6 +166,7 @@ bool MotorControl::goTo(bool turnEnd) {
     }
     last_control_us = now_us; 
 
+    #if defined(NINJA)
     if(now_us - begin_us > TIMEOUT) {
         ESP_LOGI(LOGGER_TAG, "timed out");
         has_target = false;
@@ -153,6 +175,7 @@ bool MotorControl::goTo(bool turnEnd) {
         motor_b.set_speed_pid(0.0f);
         return true;
     }
+    #endif
 
     const float dx = target_pos.x - current_pos.x;
     const float dy = target_pos.y - current_pos.y;
@@ -170,8 +193,16 @@ bool MotorControl::goTo(bool turnEnd) {
         approach_angle = normalize_angle_deg(angle_to_point);
     }
 
-    const float heading_error = normalize_angle_deg(approach_angle - current_pos.angle);
-    const float final_angle_error = normalize_angle_deg(target_pos.angle - current_pos.angle);
+    float heading_error = normalize_angle_deg(approach_angle - current_pos.angle);
+    float final_angle_error = normalize_angle_deg(target_pos.angle - current_pos.angle);
+
+    if(heading_error < 0.15f) {
+        heading_error = 0.0f;
+    }
+
+    if(final_angle_error < 0.1f) {
+        final_angle_error = 0.0f;
+    }
 
     bool at_target_position = doing_final_rotation ? true : distance_error <= POSITION_EPS_MM;
     bool do_rotation_only = at_target_position || (fabsf(heading_error) > HEADING_ALIGN_EPS_DEG);
@@ -254,7 +285,10 @@ bool MotorControl::goTo(bool turnEnd) {
         steer_derivative = ((1.0f - ALPHA) * last_steer_derivative) + (ALPHA * steer_derivative);
         last_steer_derivative = steer_derivative; 
 
-        float steer_cmd = (KP_STEER * heading_error + KD_STEER * steer_derivative);
+        steer_integral_error += heading_error * dt_s;
+        steer_integral_error = clamp(steer_integral_error, -100.0f, 100.0f);
+
+        float steer_cmd = (KP_STEER * heading_error + KD_STEER * steer_derivative + KI_STEER * steer_integral_error);
         last_heading_error = heading_error;
 
         /* Speed ramp */
@@ -273,10 +307,9 @@ bool MotorControl::goTo(bool turnEnd) {
     }
 
     // Debug angle outputs
-    ESP_LOGI(LOGGER_TAG, "Current angle: %lf", current_pos.angle);        
-    printf(">Final__angle_error:%f\n", final_angle_error); 
+    ESP_LOGI(LOGGER_TAG, "Current x: %lf, y: %lf, angle: %lf", current_pos.x, current_pos.y, current_pos.angle);         
 
-    if (INVERTED_LEFT_MOTOR) left_speed *= -1;
+    // if (INVERTED_LEFT_MOTOR) left_speed *= -1;
 
     motor_a.set_speed_pid(right_speed);
     motor_b.set_speed_pid(left_speed);

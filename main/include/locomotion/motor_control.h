@@ -43,6 +43,9 @@ class MotorControl {
         float previous_rot_cmd = 0.0f;
         float previous_steer_cmd = 0.0f;
 
+        // Integrator
+        float steer_integral_error = 0.0f;
+
     public:
         MotorControl();
         void set_coords(coords_t coords);
@@ -59,5 +62,5 @@ class MotorControl {
         void stop();
         void reset_pid();
 
-        bool INVERTED_LEFT_MOTOR;
+        // bool INVERTED_LEFT_MOTOR;
 };
