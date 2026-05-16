@@ -134,7 +134,7 @@ bool action_state() {
                     break;
                 }
                 case 2: {
-                    waypoint_map.add_object({1465.0f, 0.0f, 0.0f}, "PAMI2_1", PamiAction::DANCE, false, false, true);
+                    waypoint_map.add_object({100.0f, 0.0f, 0.0f}, "PAMI2_1", PamiAction::DANCE, false, false, true);
                     break;
                 }
                 case 3: {

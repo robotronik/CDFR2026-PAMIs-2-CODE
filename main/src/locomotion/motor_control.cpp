@@ -27,7 +27,7 @@ namespace {
     constexpr float KD_LIN = 0.01f;
     
     // Derivative low pass filter 
-    constexpr float ALPHA = 0.7f;
+    constexpr float ALPHA = 0.5f;
 
     // Ramp
     constexpr float SPEED_STEP = 0.5f;
@@ -66,15 +66,21 @@ namespace {
     constexpr float LEFT_WHEEL_TUNE = 1.00f;
     #endif
 
-    constexpr float MAX_TRANSLATION_SPEED = 60.0f;
-    constexpr float MAX_ROTATION_SPEED = 40.0f;
+    #if 4 == N_PAMI || 5 == N_PAMI
+    constexpr float MAX_TRANSLATION_SPEED = 60.0f; 
+    #else
+    constexpr float MAX_TRANSLATION_SPEED = 80.0f;
+    #endif
    
+    constexpr float MAX_ROTATION_SPEED = 40.0f;
+
     constexpr float KD_STEER = 0.1f;
     constexpr float KP_STEER = 2.0f; // % per deg
     constexpr float KI_STEER = 0.0f;
 
     constexpr float KP_ROT = 1.0f; // % per deg
     constexpr float KD_ROT = 0.005f;
+    
     #endif
 
     // Timeout
@@ -136,7 +142,7 @@ bool MotorControl::goTo(coords_t new_target, bool turnEnd, bool reverse) {
     return goTo(turnEnd);
 }
 
-#if N_PAMI == 4 || N_PAMI == 5 || N_PAMI == 0
+#if 4 == N_PAMI || 5 == N_PAMI || 0 == N_PAMI
 bool MotorControl::goTo(bool turnEnd) {
     float delta_right = motor_a.get_delta() * WHEEL_CIRCUMFERENCE;
     float delta_left = motor_b.get_delta() * WHEEL_CIRCUMFERENCE * LEFT_WHEEL_TUNE;
@@ -311,6 +317,10 @@ bool MotorControl::goTo(bool turnEnd) {
     ESP_LOGI(LOGGER_TAG, "Current x: %lf, y: %lf, angle: %lf", current_pos.x, current_pos.y, current_pos.angle);         
 
     // if (INVERTED_LEFT_MOTOR) left_speed *= -1;
+    /*
+    ESP_LOGI(LOGGER_TAG, "right speed %lf", right_speed);
+    ESP_LOGI(LOGGER_TAG, "left speed %lf", left_speed);
+    */
 
     motor_a.set_speed_pid(right_speed);
     motor_b.set_speed_pid(left_speed);
@@ -319,7 +329,7 @@ bool MotorControl::goTo(bool turnEnd) {
 }
 #else
 bool MotorControl::goTo(bool turnEnd) {
-    float delta = motor_b.get_delta();
+    float delta = motor_b.get_delta(); 
     current_pos.x += delta; 
 
     if (!has_target) {

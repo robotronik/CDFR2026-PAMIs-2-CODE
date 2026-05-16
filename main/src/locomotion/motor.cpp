@@ -1,18 +1,14 @@
 #include "locomotion/motor.h"
 #include "hal/mcpwm_types.h"
 #include "structs.h"
+#include "esp_log.h"
 
-#define IS_MONO TRUE
+const char* LOGGER_TAG = "motor";
 
 namespace {
     // PID constants for motor percentage.
     constexpr float KP = 1.5f;
-
-    #ifndef IS_MONO
-    constexpr float KI = 0.0f;
-    #else   
     constexpr float KI = 25.0f;
-    #endif
 
     constexpr float MAX_TICKS_PER_SECOND = 2700.0f; // TODO : measure the real max tick speed
 }
@@ -74,7 +70,6 @@ float Motor::get_delta() {
 }
 
 void Motor::set_speed_pid(float percentage) {
-    
     const int64_t now_us = esp_timer_get_time();
     float dt_s = 0.01f;
     if (this->last_control_us != 0) {
@@ -94,8 +89,8 @@ void Motor::set_speed_pid(float percentage) {
         this->integral_error = -max_integral;
     }
 
-    float command_speed_percent = (KP * error) + (KI * this->integral_error);
-  
+    float command_speed_percent = (KP * error) + (KI * this->integral_error); 
+
     this->set_speed(command_speed_percent);    
 }
 
