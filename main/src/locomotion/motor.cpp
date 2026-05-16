@@ -2,10 +2,17 @@
 #include "hal/mcpwm_types.h"
 #include "structs.h"
 
+#define IS_MONO TRUE
+
 namespace {
     // PID constants for motor percentage.
     constexpr float KP = 1.5f;
+
+    #ifndef IS_MONO
+    constexpr float KI = 0.0f;
+    #else   
     constexpr float KI = 25.0f;
+    #endif
 
     constexpr float MAX_TICKS_PER_SECOND = 2700.0f; // TODO : measure the real max tick speed
 }

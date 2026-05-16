@@ -250,7 +250,7 @@ bool action_state() {
             waypoint_map.add_object({410.0f, -140.0f, 0.0f}, "point4", PamiAction::FOLD, false, true, false);
             // waypoint_map.add_object({410.0f, -20.0f, 180.0f}, "point5", PamiAction::MOVING, false, false, false);
             waypoint_map.add_object({410.0f, 0.0f, 0.0f}, "point6", PamiAction::MOVING, false, false, false);
-            waypoint_map.add_object({650.0f, 40.0f, -90.0f}, "première diagonal", PamiAction::PUSH, true, false, false);
+            waypoint_map.add_object({650.0f, 50.0f, -90.0f}, "première diagonal", PamiAction::PUSH, true, false, false);
             waypoint_map.add_object({650.0f, -230.0f, -90.0f}, "push double demi stock", PamiAction::FOLD, true, false, false);
             waypoint_map.add_object({650.0f, 100.0f, 0.0f}, "Calibration Y", PamiAction::CALIBRATE_Y, false, false, false);
             waypoint_map.add_object({650.0f, 0.0f, 0.0f}, "point9", PamiAction::MOVING, false, true, false); 
@@ -258,10 +258,14 @@ bool action_state() {
             waypoint_map.add_object({165.0f, 0.0f, 90.0f}, "point12", PamiAction::MOVING, true, true, false);
             waypoint_map.add_object({165.0f, 100.0f, 0.0f}, "Calibration Y", PamiAction::CALIBRATE_Y, false, false, false);
             waypoint_map.add_object({165.0f, 20.0f, -90.0f}, "point13", PamiAction::PUSH, true, true, false);
-            waypoint_map.add_object({165.0f, -230.0f, -90.0f}, "Push 7 stocks", PamiAction::FOLD, true, false, false); 
-            waypoint_map.add_object({165.0f, 20.0f, 0.0f}, "point15", PamiAction::MOVING, false, true, false);
-            waypoint_map.add_object({650.0f, 20.0f, 0.0f}, "positionning for dancing", PamiAction::MOVING, false, false, false);
-            waypoint_map.add_object({650.0f, -225.0f, -90.0f}, "Let's go dance", PamiAction::DANCE, true, false, false);
+            waypoint_map.add_object({165.0f, -140.0f, -90.0f}, "Push 7 stocks", PamiAction::FOLD, true, false, false); 
+            waypoint_map.add_object({165.0f, -100.0f, 0.0f}, "point15", PamiAction::MOVING, false, true, false);
+            waypoint_map.add_object({165.0f, 100.0f, 0.0f}, "positionning for dancing", PamiAction::CALIBRATE_Y, false, false, false);
+            waypoint_map.add_object({165.0f, 0.0f, -90.0f}, "point16", PamiAction::PUSH, true, false, false);
+            waypoint_map.add_object({165.0f, -235.0f, -90.0f}, "point17", PamiAction::FOLD, false, false, false);
+            waypoint_map.add_object({165.0f, -200.0f, -90.0f}, "point18", PamiAction::MOVING, false, true, false);
+            waypoint_map.add_object({650.0f, -140.0f, -90.0f}, "point19", PamiAction::MOVING, false, false, false);
+            waypoint_map.add_object({650.0f, -245.0f, -90.0f}, "Let's go dance", PamiAction::DANCE, false, false, false);
 
             // move in square
             /*

@@ -69,7 +69,7 @@ namespace {
     constexpr float MAX_TRANSLATION_SPEED = 60.0f;
     constexpr float MAX_ROTATION_SPEED = 40.0f;
    
-    constexpr float KD_STEER = 0.0f;
+    constexpr float KD_STEER = 0.1f;
     constexpr float KP_STEER = 2.0f; // % per deg
     constexpr float KI_STEER = 0.0f;
 
@@ -136,6 +136,7 @@ bool MotorControl::goTo(coords_t new_target, bool turnEnd, bool reverse) {
     return goTo(turnEnd);
 }
 
+#if N_PAMI == 4 || N_PAMI == 5 || N_PAMI == 0
 bool MotorControl::goTo(bool turnEnd) {
     float delta_right = motor_a.get_delta() * WHEEL_CIRCUMFERENCE;
     float delta_left = motor_b.get_delta() * WHEEL_CIRCUMFERENCE * LEFT_WHEEL_TUNE;
@@ -316,6 +317,70 @@ bool MotorControl::goTo(bool turnEnd) {
 
     return false;
 }
+#else
+bool MotorControl::goTo(bool turnEnd) {
+    float delta = motor_b.get_delta();
+    current_pos.x += delta; 
+
+    if (!has_target) {
+        motor_a.set_speed_pid(0.0f);
+        motor_b.set_speed_pid(0.0f);
+        return true;
+    }
+
+    const int64_t now_us = esp_timer_get_time();
+    float dt_s = 0.01f;
+    if (last_control_us != 0) {
+        dt_s = (now_us - last_control_us) / 1000000.0f;
+        dt_s = clamp(dt_s, 0.001f, 0.1f);
+    }
+    last_control_us = now_us; 
+
+    const float dx = target_pos.x - current_pos.x;
+    const float distance_error = sqrtf((dx * dx));  
+
+    bool at_target_position = distance_error <= POSITION_EPS_MM; 
+
+    // Arrival logic: if not required to turn at the end, accept position-only arrival.
+    if (at_target_position) {
+        if (!turnEnd && !turn_end) {
+            has_target = false;
+            doing_final_rotation = false;
+            motor_a.set_speed_pid(0.0f);
+            motor_b.set_speed_pid(0.0f);
+            ESP_LOGI(LOGGER_TAG, "Target reached (pos) at x: %.1f, y: %.1f, angle: %.1f", current_pos.x, current_pos.y, current_pos.angle);
+            return true;
+        }
+    } 
+   
+    // PD translation only
+    
+    /* Translation calculations */
+    float lin_derivative = (distance_error - last_distance_error) / dt_s;
+    lin_derivative = ((1.0f - ALPHA) * last_lin_derivative) + (ALPHA * lin_derivative);
+    last_lin_derivative = lin_derivative;
+
+    float lin_cmd = (KP_LIN * distance_error + KD_LIN * lin_derivative);
+    last_distance_error = distance_error;
+    
+    /* Speed ramp */
+    if(lin_cmd > previous_lin_cmd + SPEED_STEP) {
+        lin_cmd = previous_lin_cmd + SPEED_STEP;
+    } else if(lin_cmd < previous_lin_cmd - SPEED_STEP) {
+        lin_cmd = previous_lin_cmd - SPEED_STEP;
+    }
+    lin_cmd = clamp(lin_cmd, 0.0f, MAX_TRANSLATION_SPEED);
+    previous_lin_cmd = lin_cmd;
+
+    float applied_lin_cmd = is_reversed ? -lin_cmd : lin_cmd; 
+
+    ESP_LOGI(LOGGER_TAG, "%lf", applied_lin_cmd);
+ 
+    motor_b.set_speed_pid(-applied_lin_cmd);
+
+    return false;
+}
+#endif
 
 void MotorControl::start() {
     motor_a.start();
