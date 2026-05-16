@@ -42,7 +42,7 @@ namespace {
     // Pami-specific tuning
     #ifdef NINJA
     // Physical tune
-    constexpr float LEFT_WHEEL_TUNE = 1.03f;
+    constexpr float LEFT_WHEEL_TUNE = 1.00f;
     
     // Speed values are motor command percentages in [-100, 100].
     constexpr float MAX_TRANSLATION_SPEED = 70.0f;
