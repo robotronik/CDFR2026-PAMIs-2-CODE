@@ -1,6 +1,6 @@
 # 🤖 CDFR 2026 - PAMI Firmware
 
-![Build Status](https://github.com/robotronik/CDFR2026-PAMIs-2-CODE/actions/workflows/build.yml/badge.svg)
+![Build Status](https://github.com/robotronik/CDFR2026-PAMIs-2-CODE/actions/workflows/build.yml/badge.svg?style=for-the-badge)
 ![Status](https://img.shields.io/badge/status-finished-green?style=for-the-badge)
 ![Language](https://img.shields.io/badge/language-C%2B%2B-blue?style=for-the-badge)
 ![Hardware](https://img.shields.io/badge/hardware-ESP32-blue?style=for-the-badge&logo=espressif)
