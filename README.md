@@ -1,9 +1,10 @@
 # 🤖 CDFR 2026 - PAMI Firmware
 
-![Status](https://img.shields.io/badge/status-in--development-orange?style=for-the-badge)
+![Status](https://img.shields.io/badge/status-finished-green?style=for-the-badge)
+![Language](https://img.shields.io/badge/language-C%2B%2B-blue?style=for-the-badge)
 ![Hardware](https://img.shields.io/badge/hardware-ESP32-blue?style=for-the-badge&logo=espressif)
 
-This repository contains the firmware for Robotronik's 2026 PAMIs (Small Intelligent Mobile Actuator) for the French Robotics Cup (CDFR). The project runs on an ESP32 and controls motion, sensing, actuation, remote logging, and match-state logic for the robot.
+This repository contains the firmware for Robotronik's 2026 PAMIs (Small Intelligent Mobile Actuator) for the French Robotics Cup (CDFR). The project runs on an ESP32 and controls motion, sensing, [...]
 
 ---
 
