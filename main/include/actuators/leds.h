@@ -1,12 +1,12 @@
 #pragma once
 #include "pins.h"
+#include "led_strip.h"
 
 class Led {
-    private:
+    protected:
         gpio_num_t pin;
     public:
-        Led(gpio_num_t pin); 
-        gpio_num_t get_pin();
+        Led(gpio_num_t pin);  
 };
 
 class StatusLed: public Led {
@@ -15,8 +15,13 @@ class StatusLed: public Led {
     public:
         using Led::Led;
         void toggle();
+        void set(bool on);
 } ;
 
 class TeamLed: public Led {
-    // TODO
+    private:
+        led_strip_handle_t strip_handle;
+    public:
+        TeamLed(gpio_num_t pin);
+        void set_color(int r, int g, int b);
 };

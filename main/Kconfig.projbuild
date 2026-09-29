@@ -1,0 +1,25 @@
+menu "Remote logging configuration"
+
+    config ENABLE_REMOTE_LOGGING
+        bool "Enable UDP remote logging"
+        default y
+
+    config WIFI_SSID
+        string "WiFi SSID"
+        default "myssid"
+        help
+            WiFi SSID for remote logging
+
+    config WIFI_PASSWORD
+        string "WiFi password"
+        default "mypassword"
+        help
+            WiFi password for remote logging
+
+    config UDP_LOG_PORT 
+        int "UDP Broadcast port"
+        default 1234
+        help
+            UDP message broadcasting port
+
+endmenu

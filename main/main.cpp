@@ -4,43 +4,123 @@
 #include <esp_rom_sys.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+#include "sdkconfig.h"
 
 #include "main.h"
+#include "action.h"
+
+#if CONFIG_ENABLE_REMOTE_LOGGING
+    #include "wireless/wifi.h"
+    #include "wireless/web_server.h"
+#endif
 
 static const char* LOGGER_TAG = "MainFSM";
-static MainFSM_State current_state = MainFSM_State::INIT;
+static MainFSMState current_state = MainFSMState::INIT;
+Team current_team = Team::BLUE;
 static constexpr TickType_t MAIN_LOOP_PERIOD = pdMS_TO_TICKS(10); // 100Hz
 
 MotorControl motor_control;
-PullSwitch pull_switch(PIN_SW_TIRETTE);
+Switch pull_switch(PIN_SW_TIRETTE);
+Switch team_switch(PIN_SW_TEAM);
 StatusLed status_led(PIN_STATUS_LED);
+TeamLed team_led(PIN_TEAM_RGB);
+Servo servo_1(PIN_SERVO_1);
+Servo servo_2(PIN_SERVO_2);
+Ultrasonic ultrasonic(PIN_US_TRIG, PIN_US_ECHO);
+BatteryMonitor battery_monitor(ADC_UNIT_1, ADC_CHANNEL_6);
 
 void main_fsm() {
     TickType_t last_wake_time = xTaskGetTickCount();
-
+    ESP_LOGI(LOGGER_TAG, "Starting main FSM");
     while(true) {
         switch(current_state) {
-            case MainFSM_State::INIT: {
+            case MainFSMState::INIT: {
                 ESP_LOGD(LOGGER_TAG, "ESP32 in init state"); 
-                status_led.toggle();
+                status_led.toggle(); 
+                team_led.set_color(0, 255, 0);
+                // motor_control.INVERTED_LEFT_MOTOR = (N_PAMI > 0) ;
                 motor_control.start();
-                current_state = MainFSM_State::IDLE;
+                esp_err_t err = servo_1.attach();
+                if (err != ESP_OK) {
+                    ESP_LOGE(LOGGER_TAG, "servo_1.attach() failed: %s", esp_err_to_name(err));
+                    current_state = MainFSMState::ERROR;
+                    break;
+                }
+
+                err = servo_2.attach();
+                if (err != ESP_OK) {
+                    ESP_LOGE(LOGGER_TAG, "servo_2.attach() failed: %s", esp_err_to_name(err));
+                    current_state = MainFSMState::ERROR;
+                    break;
+                }
+
+                err = ultrasonic.init();
+                if (err != ESP_OK) {
+                    ESP_LOGE(LOGGER_TAG, "ultrasonic.init() failed: %s", esp_err_to_name(err));
+                    current_state = MainFSMState::ERROR;
+                    break;
+                }
+
+                float battery_level = battery_monitor.readVoltage();
+                if(battery_level < 6.5f) {
+                    ESP_LOGI(LOGGER_TAG, "Low battery warning!");
+                    team_led.set_color(255, 0, 0);
+                    vTaskDelay(500);
+                }
+
+                team_led.set_color(255, 255, 0); 
+                current_team = Team::BLUE;
+
+                #ifndef NINJA
+                    servo_1.write_angle(0);
+                    servo_2.write_angle(0);
+                #else
+                    servo_1.write_angle(180);
+                    servo_2.write_angle(180);
+                #endif
+                current_state = MainFSMState::IDLE;
                 break;
             }
-            case MainFSM_State::IDLE: {
+            case MainFSMState::IDLE: {
                 ESP_LOGD(LOGGER_TAG, "ESP32 in idle state");
-                current_state = pull_switch.read() ? MainFSM_State::ACTIVE : MainFSM_State::IDLE;
+                // motor_control.goTo({0.0f, 0.0f, 0.0f}, false);
+
+                if(!team_switch.read() && current_team == Team::YELLOW) { // Blue
+                    ESP_LOGI(LOGGER_TAG, "blue");
+                    team_led.set_color(255, 255, 0); 
+                    current_team = Team::BLUE;
+                } else if (team_switch.read() && current_team == Team::BLUE) { // Yellow
+                    ESP_LOGI(LOGGER_TAG, "yellow");
+                    team_led.set_color(0, 255, 255);
+                    current_team = Team::YELLOW;
+                }
+                
+                if (!pull_switch.read()) {
+                    ESP_LOGI(LOGGER_TAG, "Pull switch activated, transitioning to active state");
+                    current_state = MainFSMState::ACTIVE;
+                    team_led.set_color(0, 255, 0);
+                }
                 break;
             }
-            case MainFSM_State::ACTIVE: {
+            case MainFSMState::ACTIVE: {
+                #ifndef NINJA
+                dance();
+                #endif
+                // Update position
                 ESP_LOGD(LOGGER_TAG, "ESP32 in active state");
-                // Nothing to do yet
-                current_state = MainFSM_State::IDLE;
+                if (action_state()) {
+                    ESP_LOGI(LOGGER_TAG, "Action done, transitioning to done state");
+                    current_state = MainFSMState::DONE;
+                }
                 break;
             }
-            case MainFSM_State::ERROR: {
+            case MainFSMState::DONE: {
+                ESP_LOGD(LOGGER_TAG, "ESP32 in done state");
+                // Do nothing, just wait for reset
+                break;
+            }
+            case MainFSMState::ERROR: {
                 ESP_LOGE(LOGGER_TAG, "ESP32 error! Reinitializing...");
-                // TODO further error handling / don't reboot automatically?
                 esp_restart();
                 break;
             }
@@ -51,5 +131,18 @@ void main_fsm() {
 } 
 
 extern "C" void app_main(void) {
-   main_fsm(); 
+    #if DEBUG_LEVEL == 0
+        esp_log_level_set("*", ESP_LOG_ERROR);
+    #elif DEBUG_LEVEL == 1
+        esp_log_level_set("*", ESP_LOG_INFO);
+    #else
+        esp_log_level_set("*", ESP_LOG_DEBUG);
+    #endif
+
+    #if CONFIG_ENABLE_REMOTE_LOGGING
+        wifi_init();
+        start_webserver(); 
+    #endif
+
+    main_fsm(); 
 }

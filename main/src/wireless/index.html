@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Robot Live Console</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { background: #121212; color: #00ff41; font-family: 'Courier New', monospace; padding: 10px; }
+        h2 { color: #fff; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        #console { background: #000; border: 1px solid #333; padding: 10px; height: 80vh; overflow-y: scroll; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h2>ESP32 Robot Real-time Logs</h2>
+    <div id="console">Connecting to robot...<br></div>
+    <script>
+        var gateway = `ws://${window.location.hostname}/ws`;
+        var socket = new WebSocket(gateway);
+        var consoleDiv = document.getElementById('console');
+        
+        socket.onopen = () => { consoleDiv.innerHTML += '<b>[CONNECTED]</b><br>'; };
+        socket.onmessage = (event) => {
+            consoleDiv.innerHTML += event.data;
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        };
+        socket.onclose = () => { consoleDiv.innerHTML += '<br><b>[DISCONNECTED]</b>'; };
+    </script>
+</body>
+</html>
