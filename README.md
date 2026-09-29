@@ -7,6 +7,9 @@
 
 This repository contains the firmware for Robotronik's 2026 PAMIs (Small Intelligent Mobile Actuator) for the French Robotics Cup (CDFR). The project runs on an ESP32 and controls motion, sensing, [...]
 
+**Related Repositories:**
+- 🔌 [PCB Design](https://github.com/robotronik/CDFR2026-PAMIs-2-DESIGN) - Hardware design and schematics
+
 ---
 
 ## Overview
